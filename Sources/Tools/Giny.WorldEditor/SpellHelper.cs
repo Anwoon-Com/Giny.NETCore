@@ -16,11 +16,11 @@ namespace Giny.WorldEditor
         private const string UnknownDataText = "Aucune données.";
         public static string GetRequiredStatesNames(SpellLevelRecord level)
         {
-            return string.Join(',', level.StatesRequired.Select(x => SpellStateRecord.GetSpellStateRecord(x)));
+            return string.Join(',', level.StatesCriterion.Select(x => SpellStateRecord.GetSpellStateRecord(x)));
         }
         public static string GetForbiddenStatesNames(SpellLevelRecord level)
         {
-            return string.Join(',', level.StatesForbidden.Select(x => SpellStateRecord.GetSpellStateRecord(x)));
+            return string.Join(',', level.StatesCriterion.Select(x => SpellStateRecord.GetSpellStateRecord(x)));
         }
         public static string GetSpellStateName(EffectDice effect)
         {
