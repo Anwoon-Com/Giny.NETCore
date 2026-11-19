@@ -38,6 +38,20 @@ namespace Giny.World
             get;
             set;
         } = 5555;
+        public bool Debug
+        {
+            get;
+            set;
+        } = false;
+        /// <summary>
+        /// Comma-separated module filters for the Debug channel (matched against
+        /// the calling file path or member name, e.g. "Fights,Items"). Empty = all.
+        /// </summary>
+        public string[] DebugModules
+        {
+            get;
+            set;
+        } = new string[0];
         public string SQLHost
         {
             get;
