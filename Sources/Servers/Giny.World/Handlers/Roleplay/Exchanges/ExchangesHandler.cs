@@ -1,4 +1,5 @@
-﻿using Giny.Core.Network.Messages;
+using Giny.Core.Network.Messages;
+using Giny.Protocol.Custom.Enums;
 using Giny.Protocol.Enums;
 using Giny.Protocol.Messages;
 using Giny.World.Managers.Dialogs.DialogBox;
@@ -7,6 +8,7 @@ using Giny.World.Managers.Exchanges;
 using Giny.World.Managers.Exchanges.Jobs;
 using Giny.World.Managers.Exchanges.Trades;
 using Giny.World.Network;
+using Giny.World.Records.Maps;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -146,8 +148,68 @@ namespace Giny.World.Handlers.Roleplay.Exchanges
         [MessageHandler]
         public static void HandleExchangeAcceptMessage(ExchangeAcceptMessage message, WorldClient client)
         {
-            if (client.Character.RequestBox is PlayerTradeRequestBox)
+            if (client.Character.RequestBox is PlayerTradeRequestBox || client.Character.RequestBox is MultiCraftRequestBox)
                 client.Character.RequestBox.Accept();
+        }
+        [MessageHandler]
+        public static void HandleExchangePlayerMultiCraftRequestMessage(ExchangePlayerMultiCraftRequestMessage message, WorldClient client)
+        {
+            Character target = client.Character.Map.Instance.GetEntity<Character>((long)message.target);
+
+            if (target == null)
+            {
+                client.Character.OnExchangeError(ExchangeErrorEnum.REQUEST_IMPOSSIBLE);
+                return;
+            }
+            if (target.Busy)
+            {
+                client.Character.OnExchangeError(ExchangeErrorEnum.REQUEST_CHARACTER_OCCUPIED);
+                return;
+            }
+            if (target.Map == null || target.Record.MapId != client.Character.Record.MapId)
+            {
+                client.Character.OnExchangeError(ExchangeErrorEnum.REQUEST_IMPOSSIBLE);
+                return;
+            }
+            if (!target.Map.Position.AllowExchangesBetweenPlayers)
+            {
+                client.Character.OnExchangeError(ExchangeErrorEnum.REQUEST_IMPOSSIBLE);
+                return;
+            }
+            if (!target.MultiCraftAllowed)
+            {
+                client.Character.OnExchangeError(ExchangeErrorEnum.REQUEST_IMPOSSIBLE);
+                return;
+            }
+
+            SkillRecord skill = SkillRecord.GetSkill((SkillTypeEnum)message.skillId);
+
+            if (skill == null || target.GetJob(skill.ParentJobId) == null)
+            {
+                client.Character.OnExchangeError(ExchangeErrorEnum.REQUEST_IMPOSSIBLE);
+                return;
+            }
+
+            target.OpenRequestBox(new MultiCraftRequestBox(client.Character, target, message.skillId));
+        }
+        [MessageHandler]
+        public static void HandleJobAllowMultiCraftRequestMessage(JobAllowMultiCraftRequestMessage message, WorldClient client)
+        {
+            client.Character.MultiCraftAllowed = message.enabled;
+
+            short[] skills = client.Character.Record.Jobs.Where(x => x.Skill != null).Select(x => (short)x.Skill.Id).ToArray();
+
+            client.Character.Client.Send(new JobMultiCraftAvailableSkillsMessage(client.Character.Id, skills, message.enabled));
+        }
+        [MessageHandler]
+        public static void HandleExchangeMultiCraftSetCrafterCanUseHisRessourcesMessage(ExchangeMultiCraftSetCrafterCanUseHisRessourcesMessage message, WorldClient client)
+        {
+            client.Character.GetDialog<MultiCraftExchange>()?.SetCrafterCanUseResources(message.allow);
+        }
+        [MessageHandler]
+        public static void HandleExchangeCraftPaymentModificationRequestMessage(ExchangeCraftPaymentModificationRequestMessage message, WorldClient client)
+        {
+            client.Character.GetDialog<MultiCraftExchange>()?.MoveKamas(message.quantity);
         }
     }
 }
