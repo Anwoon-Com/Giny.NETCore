@@ -14,6 +14,7 @@ namespace Giny.Core
         Warning = 2,
         Critical = 4,
         Log = 8,
+        Debug = 16,
     }
     public class Logger
     {
@@ -44,6 +45,7 @@ namespace Giny.Core
             { Channels.Log,     ConsoleColor.DarkGray },
             { Channels.Warning,  ConsoleColor.Yellow },
             { Channels.Critical, ConsoleColor.Red },
+            { Channels.Debug,    ConsoleColor.Cyan },
         };
 
         public static void SetChannels(Channels channels)
@@ -73,6 +75,23 @@ namespace Giny.Core
             {
                 WriteColored(value, ChannelsColors[state]);
             }
+        }
+        /// <summary>
+        /// Optional file/member filters for the Debug channel (per-module granularity).
+        /// When empty, every Debug call is written.
+        /// </summary>
+        public static List<string> DebugModuleFilters = new List<string>();
+
+        public static void Debug(object value,
+            [System.Runtime.CompilerServices.CallerMemberName] string member = "",
+            [System.Runtime.CompilerServices.CallerFilePath] string file = "",
+            [System.Runtime.CompilerServices.CallerLineNumber] int line = 0)
+        {
+            if (DebugModuleFilters.Count > 0 && !DebugModuleFilters.Any(f => file.Contains(f) || member.Contains(f)))
+                return;
+
+            Write("[" + DateTime.Now.ToString("HH:mm:ss") + "] " + member +
+                " (" + System.IO.Path.GetFileName(file) + ":" + line + ") : " + value, Channels.Debug);
         }
         public static void WriteColor1(object value)
         {

@@ -34,6 +34,12 @@ namespace Giny.World
               Console.Read(); */
 
             Logger.DrawLogo();
+
+            if (ConfigManager<WorldConfig>.Instance.Debug)
+            {
+                Logger.EnableChannel(Channels.Debug);
+                Logger.DebugModuleFilters = ConfigManager<WorldConfig>.Instance.DebugModules.ToList();
+            }
             StartupManager.Instance.Initialize(Assembly.GetExecutingAssembly());
             IPCManager.Instance.ConnectToAuth();
 
