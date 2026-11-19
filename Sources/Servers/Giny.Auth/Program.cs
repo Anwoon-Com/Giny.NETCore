@@ -10,6 +10,7 @@ using Giny.ORM;
 using Giny.ORM.IO;
 using Giny.Protocol;
 using Giny.Protocol.Messages;
+using Giny.Protocol.Custom.Enums;
 using System.Reflection;
 using Giny.Auth.Network.IPC;
 using Giny.Core.Commands;
@@ -55,6 +56,19 @@ namespace Giny.Auth
         public static void InitializeConsoleCommand()
         {
             ConsoleCommandsManager.Instance.Initialize(Assembly.GetExecutingAssembly().GetTypes());
+        }
+        [StartupInvoke("Default admin", StartupInvokePriority.Last)]
+        public static void CreateDefaultAdmin()
+        {
+            if (AccountRecord.ReadAccountRecords().Any(x => x.Role >= ServerRoleEnum.Administrator))
+            {
+                return;
+            }
+
+            var account = AccountRecord.CreateAccount("admin", "admin", ServerRoleEnum.Administrator);
+            account.AddNow();
+
+            Logger.Write("Default admin account created (admin/admin).", Channels.Warning);
         }
     }
 }
