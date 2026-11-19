@@ -16,12 +16,24 @@ namespace Giny.DatabasePatcher.Maps
 {
     public class BidshopElements
     {
+        private static readonly int[] ApparatItemTypes = new int[] { 246, 247, 248, 249, 250, 251, 252 };
+
         public static void Patch()
         {
             Logger.Write("Patching bidshops...");
 
             AddBidshopRecord(new List<int>() { 16, 17, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 19, 20, 82, 177, 151, 169, 217 },
                 new List<int>() { 1, 10, 100 }, 522691); // Hotel de vente des équipements bonta.
+
+            // Apparat category : ceremonial item types must be enabled in every bidshop.
+            foreach (var shop in BidShopRecord.GetBidShops())
+            {
+                if (ApparatItemTypes.Any(x => !shop.ItemTypes.Contains(x)))
+                {
+                    shop.ItemTypes = shop.ItemTypes.Union(ApparatItemTypes).ToList();
+                    shop.UpdateLater();
+                }
+            }
         }
 
         private static void AddBidshopRecord(List<int> itemTypes, List<int> quantities, int elementIdentifier, int maxItemPerAccount = 550)
