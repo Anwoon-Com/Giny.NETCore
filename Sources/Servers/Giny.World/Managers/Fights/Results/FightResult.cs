@@ -56,7 +56,7 @@ namespace Giny.World.Managers.Fights.Results
             get
             {
                 T fighter = this.Fighter;
-                return fighter.Stats[CharacteristicEnum.MAGIC_FIND].TotalInContext();
+                return fighter.Stats[CharacteristicEnum.WISDOM].TotalInContext();
             }
         }
         public int Level

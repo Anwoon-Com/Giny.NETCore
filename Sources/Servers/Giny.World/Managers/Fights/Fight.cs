@@ -44,6 +44,11 @@ namespace Giny.World.Managers.Fights
 
         private UniqueIdProvider m_markIdPopper = new UniqueIdProvider(0);
 
+        /// <summary>
+        /// Number of times each item gid was dropped during this fight (drop limit tracking).
+        /// </summary>
+        public Dictionary<int, int> DropsCount = new Dictionary<int, int>();
+
         /* -- Fight events API -- */
 
         public event Action<Fighter> TurnEnded;

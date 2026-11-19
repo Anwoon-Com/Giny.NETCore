@@ -10,6 +10,7 @@ using Giny.Protocol.Enums;
 using Giny.Protocol.Types;
 using Giny.World.Managers.Entities.Look;
 using Giny.World.Managers.Fights.Cast;
+using Giny.World.Managers.Criterias;
 using Giny.World.Managers.Fights.Results;
 using Giny.World.Managers.Fights.Stats;
 using Giny.World.Managers.Formulas;
@@ -22,7 +23,6 @@ namespace Giny.World.Managers.Fights.Fighters
 {
     public class MonsterFighter : AIFighter, IMonster
     {
-        readonly Dictionary<MonsterDrop, int> m_dropsCount = new Dictionary<MonsterDrop, int>();
 
         public Monster Monster
         {
@@ -140,14 +140,22 @@ namespace Giny.World.Managers.Fights.Fighters
 
             var prospectingSum = EnemyTeam.GetFighters<CharacterFighter>(false).Sum(entry => entry.Stats[CharacteristicEnum.MAGIC_FIND].TotalInContext()); ;
 
-            foreach (var droppableItem in Monster.Record.Drops.Where(droppableItem => !droppableItem.HasCriteria && prospectingSum >= droppableItem.ProspectingLock).Shuffle())
+            var looterClient = (looter as FightResult<CharacterFighter>)?.Fighter?.Character?.Client;
+
+            foreach (var droppableItem in Monster.Record.Drops.Where(droppableItem => prospectingSum >= droppableItem.ProspectingLock).Shuffle())
             {
+                if (droppableItem.HasCriteria &&
+                    (looterClient == null || !CriteriaExpression.Eval(droppableItem.criteria, looterClient)))
+                {
+                    continue;
+                }
+
                 for (var i = 0; i < droppableItem.RollsCounter; i++)
                 {
-                    if (droppableItem.DropLimit > 0 && m_dropsCount.ContainsKey(droppableItem) && m_dropsCount[droppableItem] >= droppableItem.DropLimit)
+                    if (droppableItem.DropLimit > 0 && Fight.DropsCount.ContainsKey(droppableItem.ItemGId) && Fight.DropsCount[droppableItem.ItemGId] >= droppableItem.DropLimit)
                         break;
 
-                    var chance = (Random.Next(0, 100) + Random.NextDouble());
+                    var chance = Random.NextDouble() * 100;
                     var dropRate = FightFormulas.Instance.AdjustDropChance(looter, droppableItem, Monster, bonusRatio);
 
                     if (!(dropRate >= chance))
@@ -155,10 +163,10 @@ namespace Giny.World.Managers.Fights.Fighters
 
                     items.Add(new DroppedItem((short)droppableItem.ItemGId, 1));
 
-                    if (!m_dropsCount.ContainsKey(droppableItem))
-                        m_dropsCount.Add(droppableItem, 1);
+                    if (!Fight.DropsCount.ContainsKey(droppableItem.ItemGId))
+                        Fight.DropsCount.Add(droppableItem.ItemGId, 1);
                     else
-                        m_dropsCount[droppableItem]++;
+                        Fight.DropsCount[droppableItem.ItemGId]++;
                 }
             }
 
