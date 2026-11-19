@@ -40,11 +40,14 @@ namespace Giny.World.Managers.Achievements
         public void OnPlayerReachObjective(Character character)
         {
             TriggerAchievementsByCriterion<AchievementPointsCriterion>(character);
+            TriggerAchievementsByCriterion<AchievementCountCriterion>(character);
         }
 
         public void OnPlayerFightEnding(CharacterFighter characterFighter)
         {
             TriggerAchievementsByCriterion<KillMonsterWithChallengeCriterion>(characterFighter.Character);
+            TriggerAchievementsByCriterion<KillMonsterCriterion>(characterFighter.Character);
+            TriggerAchievementsByCriterion<DefeatBossCriterion>(characterFighter.Character);
 
           
         }

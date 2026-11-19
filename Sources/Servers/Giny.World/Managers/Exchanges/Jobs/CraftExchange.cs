@@ -1,4 +1,6 @@
-﻿using Giny.Protocol.Custom.Enums;
+using Giny.Protocol.Custom.Enums;
+using Giny.World.Managers.Achievements;
+using Giny.World.Managers.Criterions.Handlers;
 using Giny.Protocol.Enums;
 using Giny.Protocol.Messages;
 using Giny.Protocol.Types;
@@ -143,6 +145,10 @@ namespace Giny.World.Managers.Exchanges.Jobs
                     quantity = results.Count,
                 });
             }
+
+            Character.LastCraftedGid = results.Count > 0 ? results[0].GId : (int)recipe.ResultId;
+            Character.LastCraftedCount = results.Count;
+            AchievementManager.Instance.TriggerAchievementsByCriterion<CraftItemCriterion>(Character);
 
             int craftXpRatio = recipe.ResultRecord.CraftXpRatio;
             int exp = JobFormulas.Instance.GetCraftExperience(recipe.ResultRecord.Level, CharacterJob.Level, craftXpRatio);
