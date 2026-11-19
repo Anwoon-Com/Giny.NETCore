@@ -566,16 +566,28 @@ namespace Giny.World.Managers.Entities.Characters
         }
         public bool StartQuest(long questId)
         {
-            if (Record.Quests.Any(x => x.QuestId == questId))
-            {
-                return false;
-            }
-
             QuestRecord record = QuestRecord.GetQuest(questId);
 
             if (record == null)
             {
                 return false;
+            }
+
+            var existing = Record.Quests.Where(x => x.QuestId == questId).ToList();
+
+            if (existing.Any(x => !x.Finished()))
+            {
+                return false;
+            }
+
+            if (existing.Count > 0)
+            {
+                // Repeatable quest : a finished instance can be restarted
+                // up to RepeatLimit times (0 = unlimited).
+                if (record.RepeatType == 0 || (record.RepeatLimit > 0 && existing.Count >= record.RepeatLimit))
+                {
+                    return false;
+                }
             }
 
             var characterQuest = QuestManager.Instance.CreateCharacterQuest(record);
