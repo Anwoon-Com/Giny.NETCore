@@ -1784,6 +1784,7 @@ namespace Giny.World.Managers.Entities.Characters
             CreateContext(GameContextEnum.ROLE_PLAY);
             this.RefreshStats();
             this.Fighter = null;
+            this.Record.FightId = null;
 
             if (spawnJoin && !winner)
             {
@@ -1916,6 +1917,7 @@ namespace Giny.World.Managers.Entities.Characters
 
             if (this.Fighter == null)
             {
+                Record.FightId = null;
                 return;
             }
 

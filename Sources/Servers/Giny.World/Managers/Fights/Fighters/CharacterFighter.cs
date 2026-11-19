@@ -501,15 +501,11 @@ namespace Giny.World.Managers.Fights.Fighters
         [Annotation("Handle the void loop ? No character in fight... Such cancer")]
         public void OnDisconnected()
         {
-            /* Character.Record.FightId = this.Fight.Id;
+            Character.Record.FightId = this.Fight.Id;
 
-             this.EnterDisconnectedState();
+            this.EnterDisconnectedState();
 
-             this.Fight.TextInformation(TextInformationTypeEnum.TEXT_INFORMATION_ERROR, 182, this.Name, Fight.TurnBeforeDisconnection);
-
-           */
-
-            Die(this);
+            this.Fight.TextInformation(TextInformationTypeEnum.TEXT_INFORMATION_ERROR, 182, this.Name, Fight.TurnBeforeDisconnection);
 
             if (Fight.GetAllConnectedFighters().Count() == 0)
             {
