@@ -21,6 +21,28 @@ namespace Giny.World.Handlers.Items
                 client.Character.UseItem(message.objectUID, true);
         }
         [MessageHandler]
+        public static void HandleObjectUseMultipleMessage(ObjectUseMultipleMessage message, WorldClient client)
+        {
+            if (client.Character.Busy || client.Character.Fighting || message.quantity <= 0)
+            {
+                return;
+            }
+
+            var item = client.Character.Inventory.GetItem(message.objectUID);
+
+            if (item == null)
+            {
+                return;
+            }
+
+            int count = Math.Min(message.quantity, item.Quantity);
+
+            for (int i = 0; i < count; i++)
+            {
+                client.Character.UseItem(message.objectUID, i == count - 1);
+            }
+        }
+        [MessageHandler]
         public static void HandleObjectSetPositionMessage(ObjectSetPositionMessage message, WorldClient client)
         {
             if (client.Character.Busy)
