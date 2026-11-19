@@ -47,6 +47,7 @@ using Giny.World.Records.Characters;
 using Giny.World.Records.Guilds;
 using Giny.World.Records.Items;
 using Giny.World.Records.Maps;
+using Giny.World.Records.Mounts;
 using Giny.World.Records.Npcs;
 using Giny.World.Records.Quests;
 using Giny.World.Records.Spells;
@@ -1849,6 +1850,186 @@ namespace Giny.World.Managers.Entities.Characters
 
 
 
+
+        public MountRecord Mount
+        {
+            get
+            {
+                return MountRecord.GetMountsByOwnerId(Id).FirstOrDefault(x => x.Equiped);
+            }
+        }
+
+        public void EquipMount(MountRecord mount)
+        {
+            var current = Mount;
+
+            if (current != null && current.Id != mount.Id)
+            {
+                UnequipMount();
+            }
+
+            mount.Equiped = true;
+            mount.MapId = 0;
+            mount.UpdateLater();
+
+            ItemEffectsManager.Instance.AddEffects(this, mount.Effects);
+            Client.Send(new MountSetMessage(mount.GetMountClientData()));
+        }
+
+        public void UnequipMount()
+        {
+            var mount = Mount;
+
+            if (mount == null)
+            {
+                return;
+            }
+
+            if (mount.Riding)
+            {
+                StopRiding();
+            }
+
+            mount.Equiped = false;
+            mount.UpdateLater();
+
+            ItemEffectsManager.Instance.RemoveEffects(this, mount.Effects);
+            Client.Send(new MountUnSetMessage());
+        }
+
+        public void ToggleRiding()
+        {
+            var mount = Mount;
+
+            if (mount == null)
+            {
+                Client.Send(new MountEquipedErrorMessage((byte)MountEquipedErrorEnum.UNSET));
+                return;
+            }
+
+            if (mount.Riding)
+            {
+                StopRiding();
+            }
+            else
+            {
+                ItemRecord item = ItemRecord.GetItem(mount.ModelId);
+
+                if (item == null || string.IsNullOrEmpty(item.Look))
+                {
+                    ReplyError("Cette monture n'est pas montable.");
+                    return;
+                }
+
+                mount.Riding = true;
+                Record.ContextualLook = EntityLookManager.Instance.CreatePetMountLook(this, item.Look);
+                mount.UpdateLater();
+                RefreshLookOnMap();
+            }
+        }
+
+        private void StopRiding()
+        {
+            var mount = Mount;
+
+            if (mount != null)
+            {
+                mount.Riding = false;
+                mount.UpdateLater();
+            }
+
+            Record.ContextualLook = null;
+            RefreshLookOnMap();
+        }
+
+        /// <summary>
+        /// Puts the currently equiped mount into the paddock of the current map,
+        /// or retrieves the owner's mounts stored in this paddock.
+        /// </summary>
+        public void StableMountInPaddock()
+        {
+            var equiped = Mount;
+
+            if (equiped != null)
+            {
+                UnequipMount();
+                equiped.MapId = Map.Id;
+                equiped.StableSince = DateTime.Now;
+                equiped.UpdateLater();
+                Reply("La monture a été laissée dans l'enclos.");
+                return;
+            }
+
+            var stabled = MountRecord.GetMountsInPaddock(Map.Id).Where(x => x.OwnerId == Id).ToList();
+
+            foreach (var mount in stabled)
+            {
+                var hours = (DateTime.Now - mount.StableSince).TotalHours;
+
+                if (hours > 0)
+                {
+                    mount.AddExperience((long)(hours * 10));
+                }
+                mount.StableSince = DateTime.Now;
+                mount.MapId = 0;
+                mount.UpdateLater();
+            }
+
+            if (stabled.Count > 0)
+            {
+                EquipMount(stabled.First());
+                Reply("Monture récupérée depuis l'enclos.");
+            }
+            else
+            {
+                ReplyWarning("Aucune monture dans cet enclos.");
+            }
+        }
+
+        /// <summary>
+        /// Breeds two of the owner's mounts stabled in the paddock of the
+        /// current map. Requires a male and a female, non sterilized, that
+        /// have not bred in the last 24 hours. Produces a level 1 foal of
+        /// the mother's model in the same paddock.
+        /// </summary>
+        public void BreedMounts(long mountIdA, long mountIdB)
+        {
+            var stabled = MountRecord.GetMountsInPaddock(Map.Id).Where(x => x.OwnerId == Id).ToList();
+            var a = stabled.FirstOrDefault(x => x.Id == mountIdA);
+            var b = stabled.FirstOrDefault(x => x.Id == mountIdB);
+
+            if (a == null || b == null)
+            {
+                ReplyError("Ces montures ne sont pas dans cet enclos.");
+                return;
+            }
+            if (a.Sex == b.Sex)
+            {
+                ReplyError("L'accouplement nécessite un mâle et une femelle.");
+                return;
+            }
+            if (a.Sterilized || b.Sterilized)
+            {
+                ReplyError("Une monture stérilisée ne peut pas se reproduire.");
+                return;
+            }
+            var cooldown = DateTime.Now.AddHours(-24);
+
+            if (a.LastBred > cooldown || b.LastBred > cooldown)
+            {
+                ReplyError("Ces montures doivent se reposer avant de se reproduire.");
+                return;
+            }
+            var mother = a.Sex ? b : a;
+            var foal = MountRecord.CreateMount(mother.ModelId, Id, Map.Id);
+
+            a.LastBred = DateTime.Now;
+            b.LastBred = DateTime.Now;
+            a.UpdateLater();
+            b.UpdateLater();
+
+            Reply("Un poulain est né dans l'enclos ! (id " + foal.Id + ")");
+        }
 
         public void AddFollower(ServerEntityLook look)
         {

@@ -94,6 +94,11 @@ namespace Giny.World.Managers.Fights.Results
         {
             base.Character.AddExperience(this.ExperienceFightDelta, false);
 
+            if (base.Character.Mount != null && this.ExperienceForMount > 0)
+            {
+                base.Character.Mount.AddExperience(this.ExperienceForMount);
+            }
+
             if (base.Character.HasGuild && this.ExperienceForGuild > 0)
             {
                 base.Character.Guild.AddExp(Character.GuildMember, ExperienceForGuild);

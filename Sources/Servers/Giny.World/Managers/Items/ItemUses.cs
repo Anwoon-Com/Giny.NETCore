@@ -1,4 +1,5 @@
 ﻿using Giny.Core.Extensions;
+using Giny.ORM;
 using Giny.Protocol.Custom.Enums;
 using Giny.Protocol.Enums;
 using Giny.World.Managers.Effects;
@@ -8,7 +9,10 @@ using Giny.World.Managers.Fights.Fighters;
 using Giny.World.Managers.Monsters;
 using Giny.World.Managers.Stats;
 using Giny.World.Records.Items;
+using Giny.World.Managers.Mounts;
+using Giny.World.Records.Mounts;
 using Giny.World.Records.Maps;
+using Giny.World.Records.Mounts;
 using Giny.World.Records.Monsters;
 using Giny.World.Records.Spells;
 using Giny.World.Records.Tinsel;
@@ -76,6 +80,37 @@ namespace Giny.World.Managers.Items
             character.LearnEmote((byte)effect.Value);
             return true;
         }
+        [ItemUsageHandler(ItemTypeEnum.BREEDING_ITEM)]
+        public static bool UseRaisingObject(Character character, CharacterItemRecord item)
+        {
+            var stabled = MountRecord.GetMountsByOwnerId(character.Id).Where(x => x.MapId != 0).ToList();
+
+            if (stabled.Count == 0)
+            {
+                character.ReplyWarning("Aucune monture en enclos : l'objet d'elevage n'a aucun effet.");
+                return false;
+            }
+
+            var stat = RaisingObjects.StatOf.TryGetValue((int)item.GId, out var s)
+                ? s : MountRaisingStat.Maturity;
+
+            foreach (var mount in stabled)
+            {
+                mount.AddExperience(RaisingObjects.XpPerUse[stat]);
+
+                // Trained stats speed up the next breeding.
+                if (stat != MountRaisingStat.Energy && mount.LastBred != default)
+                {
+                    mount.LastBred = mount.LastBred.AddHours(-1);
+                }
+
+                mount.UpdateLater();
+            }
+
+            character.Reply(stabled.Count + " monture(s) entrainee(s) : " + stat);
+            return true;
+        }
+
         [ItemUsageHandler(EffectsEnum.Effect_AddPermanentAgility)]
         public static bool PermanentAgility(Character character, EffectInteger effect)
         {
@@ -183,22 +218,45 @@ namespace Giny.World.Managers.Items
         [ItemUsageHandler(ItemTypeEnum.DRAGOTURKEY_CERTIFICATE)]
         public static bool DragoturkeyCertificate(Character character, CharacterItemRecord item)
         {
-            character.ReplyWarning("Les montures ne sont pas disponibles pour le moment.");
-            return false;
+            return CreateMountFromCertificate(character, item);
         }
 
         [ItemUsageHandler(ItemTypeEnum.SEEMYOOL_CERTIFICATE)]
         public static bool SeemyoolCertificate(Character character, CharacterItemRecord item)
         {
-            character.ReplyWarning("Les montures ne sont pas disponibles pour le moment.");
-            return false;
+            return CreateMountFromCertificate(character, item);
         }
 
         [ItemUsageHandler(ItemTypeEnum.RHINEETLE_CERTIFICATE)]
         public static bool RhineetleCertificate(Character character, CharacterItemRecord item)
         {
-            character.ReplyWarning("Les montures ne sont pas disponibles pour le moment.");
-            return false;
+            return CreateMountFromCertificate(character, item);
+        }
+
+        private static bool CreateMountFromCertificate(Character character, CharacterItemRecord item)
+        {
+            MountRecord mount = new MountRecord()
+            {
+                Id = MountRecord.NextId(),
+                OwnerId = character.Id,
+                ModelId = item.GId,
+                Name = item.Record.Name,
+                Level = 1,
+                Experience = 0,
+                Sex = new Random().Next(2) == 0,
+                Effects = item.Record.Effects.Generate(),
+                Equiped = false,
+                Riding = false,
+                MapId = 0,
+                Sterilized = false,
+            };
+
+            mount.AddNow();
+            character.Inventory.RemoveItem(item.UId, 1);
+            character.EquipMount(mount);
+
+            character.Reply("Monture obtenue : " + mount.Name);
+            return true;
         }
     }
 }
