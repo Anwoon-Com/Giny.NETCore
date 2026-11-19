@@ -1784,6 +1784,15 @@ namespace Giny.World.Managers.Entities.Characters
             return Fighter;
         }
 
+        /// <summary>
+        /// Keyring usages per dungeon map (destination map id -> week number, yyyyww).
+        /// One keyring entry per dungeon per week.
+        /// </summary>
+        public Dictionary<long, int> KeyringUsages
+        {
+            get;
+            private set;
+        } = new Dictionary<long, int>();
         public void RejoinMap(long mapId, FightTypeEnum fightType, bool winner, bool spawnJoin)
         {
             DestroyContext();
