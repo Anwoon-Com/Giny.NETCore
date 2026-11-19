@@ -57,12 +57,15 @@
                         <MudListSubheader>
                             Objectives
                         </MudListSubheader>
+                        @if (SelectedStep != null)
+                        {
                         @foreach (var objective in SelectedStep.Objectives)
                         {
                             <MudListItem IconSize="Size.Medium" Style="font-weight:bold" Icon="@GetObjectiveIcon(objective.Type)" OnClick="() => SelectObjective(objective)" IconColor="Color.Primary">
                                 <MudText Style="font-weight:400;font-size:15px">@objective</MudText>
 
                             </MudListItem>
+                        }
                         }
 
 
