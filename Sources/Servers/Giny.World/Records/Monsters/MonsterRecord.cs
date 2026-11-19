@@ -87,6 +87,13 @@ namespace Giny.World.Records.Monsters
             get;
             set;
         }
+        [Blob]
+        [D2OField("spellGrades")]
+        public string[] SpellGrades
+        {
+            get;
+            set;
+        }
         [Ignore]
         public ConcurrentDictionary<short, SpellRecord> SpellRecords
         {
@@ -190,6 +197,43 @@ namespace Giny.World.Records.Monsters
         public MonsterGrade GetGrade(byte gradeId)
         {
             return Grades.FirstOrDefault(x => x.GradeId == gradeId);
+        }
+        /// <summary>
+        /// Resolves the spell level a monster of the given grade casts.
+        /// Uses the D2O "spellGrades" field (format : "grade,level;grade,level;...") when available.
+        /// </summary>
+        public SpellLevelRecord GetSpellLevel(short spellId, byte gradeId)
+        {
+            var spell = SpellRecords[spellId];
+
+            int index = Array.IndexOf(Spells, (long)spellId);
+
+            if (index >= 0 && SpellGrades != null && index < SpellGrades.Length && SpellGrades[index] != null)
+            {
+                byte level = 0;
+
+                foreach (var pair in SpellGrades[index].Split(';'))
+                {
+                    var parts = pair.Split(',');
+
+                    if (parts.Length == 2 && byte.TryParse(parts[0], out byte grade) && byte.TryParse(parts[1], out byte l))
+                    {
+                        if (grade == gradeId)
+                        {
+                            return spell.GetLevel(l);
+                        }
+                        if (grade <= gradeId)
+                        {
+                            level = Math.Max(level, l);
+                        }
+                    }
+                }
+                if (level > 0)
+                {
+                    return spell.GetLevel(level);
+                }
+            }
+            return spell.GetLevel(gradeId);
         }
         public MonsterGrade RandomGrade()
         {
