@@ -1862,6 +1862,28 @@ namespace Giny.World.Managers.Entities.Characters
             get;
             private set;
         } = new Dictionary<long, int>();
+        /// <summary>
+        /// Stat effects granted by consumables (candies / boost food), with their remaining fights count.
+        /// </summary>
+        public List<CandyBoost> ActiveBoosts
+        {
+            get;
+            private set;
+        } = new List<CandyBoost>();
+        private void UpdateBoostsAfterFight()
+        {
+            foreach (var boost in ActiveBoosts.ToArray())
+            {
+                boost.RemainingFights--;
+
+                if (boost.RemainingFights <= 0)
+                {
+                    ItemEffectsManager.Instance.RemoveEffects(this, boost.Effects);
+                    ActiveBoosts.Remove(boost);
+                    Reply("L'effet du bonbon s'est dissipe.");
+                }
+            }
+        }
         public void RejoinMap(long mapId, FightTypeEnum fightType, bool winner, bool spawnJoin)
         {
             DestroyContext();
@@ -1869,6 +1891,8 @@ namespace Giny.World.Managers.Entities.Characters
             this.RefreshStats();
             this.Fighter = null;
             this.Record.FightId = null;
+
+            UpdateBoostsAfterFight();
 
             if (spawnJoin && !winner)
             {

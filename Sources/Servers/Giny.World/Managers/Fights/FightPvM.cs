@@ -110,6 +110,7 @@ namespace Giny.World.Managers.Fights
                         respawnTimer.Dispose();
                     }, false);
                 respawnTimer.Start();
+            }
             if (Winners == GetTeam(TeamTypeEnum.TEAM_TYPE_PLAYER) && Started)
             {
                 CaptureSoul();
