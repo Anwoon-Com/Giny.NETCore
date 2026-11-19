@@ -177,7 +177,7 @@ namespace Giny.World.Managers.Fights.Fighters
         public override Spell GetSpell(short spellId)
         {
             var record = Record.SpellRecords[spellId];
-            var level = record.GetLevel(Grade.GradeId);
+            var level = Record.GetSpellLevel(spellId, Grade.GradeId);
             return new Spell(record, level);
         }
 
