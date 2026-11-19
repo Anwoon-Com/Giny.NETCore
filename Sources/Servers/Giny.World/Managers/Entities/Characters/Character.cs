@@ -1956,6 +1956,12 @@ namespace Giny.World.Managers.Entities.Characters
                 }
             }
         }
+        [Annotation("the fight the character is spectating, if any")]
+        public Fight SpectatingFight
+        {
+            get;
+            set;
+        }
         public void RejoinMap(long mapId, FightTypeEnum fightType, bool winner, bool spawnJoin)
         {
             DestroyContext();
