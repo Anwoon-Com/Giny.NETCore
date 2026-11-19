@@ -26,6 +26,45 @@ namespace Giny.World.Managers.Items
 {
     public class ItemUses
     {
+        [ItemUsageHandler(EffectsEnum.Effect_SoulStoneSummon)]
+        public static bool UseSoulStone(Character character, Effect effect)
+        {
+            EffectString stringEffect = effect as EffectString;
+
+            if (stringEffect == null || stringEffect.Value == null || character.Fighting)
+            {
+                return false;
+            }
+
+            var monsters = new List<MonsterRecord>();
+            var grades = new List<byte>();
+
+            foreach (var entry in stringEffect.Value.Split(';'))
+            {
+                var parts = entry.Split(',');
+
+                if (parts.Length != 2)
+                {
+                    continue;
+                }
+
+                var record = MonsterRecord.GetMonsterRecord(short.Parse(parts[0]));
+
+                if (record != null)
+                {
+                    monsters.Add(record);
+                    grades.Add(byte.Parse(parts[1]));
+                }
+            }
+
+            if (monsters.Count == 0)
+            {
+                return false;
+            }
+
+            MonstersManager.Instance.AddFixedMonsterGroup(character.Map.Instance, character.CellId, monsters.ToArray(), grades.ToArray());
+            return true;
+        }
         [ItemUsageHandler(EffectsEnum.Effect_LearnSpell)]
         public static bool LearnSpell(Character character, EffectInteger effect)
         {
