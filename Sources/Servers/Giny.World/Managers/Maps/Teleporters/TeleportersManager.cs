@@ -25,9 +25,14 @@ namespace Giny.World.Managers.Maps.Teleporters
 
             foreach (var interactiveSkill in InteractiveSkillRecord.GetInteractiveSkills())
             {
+                int zoneId;
+
+                if (!int.TryParse(interactiveSkill.Param1, out zoneId))
+                {
+                    continue;
+                }
                 if (interactiveSkill.ActionIdentifier == GenericActionEnum.Zaap)
                 {
-                    int zoneId = int.Parse(interactiveSkill.Param1);
 
                     var destinations = m_destinations[TeleporterTypeEnum.TELEPORTER_ZAAP];
 
@@ -42,8 +47,6 @@ namespace Giny.World.Managers.Maps.Teleporters
                 }
                 else if (interactiveSkill.ActionIdentifier == GenericActionEnum.Zaapi)
                 {
-                    int zoneId = int.Parse(interactiveSkill.Param1);
-
                     var destinations = m_destinations[TeleporterTypeEnum.TELEPORTER_SUBWAY];
 
                     if (!destinations.ContainsKey(zoneId))
@@ -91,7 +94,13 @@ namespace Giny.World.Managers.Maps.Teleporters
 
         public List<long> GetMaps(TeleporterTypeEnum teleporterType, int zoneId)
         {
-            return m_destinations[teleporterType][zoneId];
+            List<long> maps;
+
+            if (!m_destinations[teleporterType].TryGetValue(zoneId, out maps))
+            {
+                return new List<long>();
+            }
+            return maps;
         }
         public List<long> GetMaps(TeleporterTypeEnum teleporterType)
         {
