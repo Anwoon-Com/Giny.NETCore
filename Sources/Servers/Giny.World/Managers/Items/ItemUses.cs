@@ -74,6 +74,31 @@ namespace Giny.World.Managers.Items
             character.SpawnPoint();
             return true;
         }
+        /// <summary>
+        /// Keyrings : using the item teleports the player to the dungeon entrance map
+        /// carried by the Effect_Teleport effect and consumes it.
+        /// </summary>
+        [ItemUsageHandler(EffectsEnum.Effect_Teleport)]
+        public static bool Teleport(Character character, EffectInteger effect)
+        {
+            var map = MapRecord.GetMap(effect.Value);
+
+            if (map == null)
+            {
+                return false;
+            }
+
+            int week = DateTime.Now.Year * 100 + System.Globalization.ISOWeek.GetWeekOfYear(DateTime.Now);
+
+            if (character.KeyringUsages.TryGetValue(map.Id, out int usedWeek) && usedWeek == week)
+            {
+                character.ReplyWarning("Vous avez déjà utilisé un trousseau pour ce donjon cette semaine.");
+                return false;
+            }
+            character.KeyringUsages[map.Id] = week;
+            character.Teleport(map.Id);
+            return true;
+        }
         [ItemUsageHandler(EffectsEnum.Effect_LearnEmote)]
         public static bool LearnEmote(Character character, EffectInteger effect)
         {
