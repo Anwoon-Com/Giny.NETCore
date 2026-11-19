@@ -109,6 +109,10 @@ namespace Giny.World.Managers.Monsters
         {
             return Monsters;
         }
+        public bool HasWantedMonster()
+        {
+            return Monsters.Any(x => x.Record.IsQuestMonster || x.Record.IsMiniBoss);
+        }
         private void Move(List<short> keys)
         {
             this.Map.Instance.Send(new GameMapMovementMessage(keys.ToArray(), 1, Id));

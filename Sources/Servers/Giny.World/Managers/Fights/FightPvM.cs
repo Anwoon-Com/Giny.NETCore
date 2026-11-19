@@ -23,6 +23,8 @@ namespace Giny.World.Managers.Fights
 {
     public class FightPvM : Fight
     {
+        public const double WantedRespawnHours = 2;
+
         public override FightTypeEnum FightType => FightTypeEnum.FIGHT_TYPE_PvM;
 
         public override bool ShowBlades => true;
@@ -91,7 +93,21 @@ namespace Giny.World.Managers.Fights
                 if (Winners == GetTeam(TeamTypeEnum.TEAM_TYPE_MONSTER) || !Started && MonsterGroup.RespawnOnVictory)
                 {
                     Map.Instance.AddEntity(MonsterGroup);
+                    return;
                 }
+            }
+
+            // Wanted monsters respawn after a delay instead of instantly.
+            if (Winners == GetTeam(TeamTypeEnum.TEAM_TYPE_PLAYER) && MonsterGroup.HasWantedMonster())
+            {
+                ActionTimer respawnTimer = null;
+                respawnTimer = new ActionTimer((int)TimeSpan.FromHours(WantedRespawnHours).TotalMilliseconds,
+                    delegate ()
+                    {
+                        Map.Instance.AddEntity(MonsterGroup);
+                        respawnTimer.Dispose();
+                    }, false);
+                respawnTimer.Start();
             }
         }
         public bool GroupExistOnMap()
