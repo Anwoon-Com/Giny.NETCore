@@ -14,6 +14,15 @@ namespace Giny.World.Managers.Fights.Challenges
     /// Les combattants alliés ne doivent jamais finir leur tour sur une cellule adjacente à celle d'un ennemi.
     /// </summary>
     [Challenge(40)]
+    [Challenge(121)]
+    [Challenge(135)]
+    [Challenge(148)]
+    [Challenge(150)]
+    [Challenge(152)]
+    [Challenge(154)]
+    [Challenge(159)]
+    [Challenge(258)]
+    [Challenge(259)]
     public class Cautious : Challenge
     {
         public Cautious(ChallengeRecord record, FightTeam team) : base(record, team)

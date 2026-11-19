@@ -14,6 +14,15 @@ namespace Giny.World.Managers.Fights.Challenges
       *  pendant toute la durée du combat. 
       */
     [Challenge(8)]
+    [Challenge(129)]
+    [Challenge(133)]
+    [Challenge(171)]
+    [Challenge(227)]
+    [Challenge(247)]
+    [Challenge(260)]
+    [Challenge(261)]
+    [Challenge(281)]
+    [Challenge(349)]
     public class Nomadic : Challenge
     {
         public Nomadic(ChallengeRecord record, FightTeam team) : base(record, team)

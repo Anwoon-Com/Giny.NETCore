@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 namespace Giny.World.Managers.Fights.Challenges
 {
     [Challenge(17)]
+    [Challenge(209)]
     public class Untouchable : Challenge
     {
         public Untouchable(ChallengeRecord record, FightTeam team) : base(record, team)

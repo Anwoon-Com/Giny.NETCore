@@ -22,9 +22,7 @@ namespace Giny.World.Managers.Fights.Challenges
         {
             foreach (var type in AssemblyCore.GetTypes())
             {
-                ChallengeAttribute attribute = type.GetCustomAttribute<ChallengeAttribute>();
-
-                if (attribute != null)
+                foreach (var attribute in type.GetCustomAttributes<ChallengeAttribute>())
                 {
                     var challenge = ChallengeRecord.GetChallenge(attribute.Id);
 
@@ -33,7 +31,10 @@ namespace Giny.World.Managers.Fights.Challenges
                         Logger.Write("Challenge " + attribute.Id + " have unknown challenge record. (skipped)", Channels.Warning);
                         continue;
                     }
-                    this.m_challenges.Add(challenge, type);
+                    if (!m_challenges.ContainsKey(challenge))
+                    {
+                        this.m_challenges.Add(challenge, type);
+                    }
                 }
             }
         }
@@ -92,6 +93,7 @@ namespace Giny.World.Managers.Fights.Challenges
 
     }
 
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
     public class ChallengeAttribute : Attribute
     {
         public int Id

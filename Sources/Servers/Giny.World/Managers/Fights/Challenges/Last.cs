@@ -15,6 +15,19 @@ namespace Giny.World.Managers.Fights.Challenges
     /// La cible désignée doit être achevée en dernier.
     /// </summary>
     [Challenge(4)]
+    [Challenge(128)]
+    [Challenge(155)]
+    [Challenge(197)]
+    [Challenge(211)]
+    [Challenge(216)]
+    [Challenge(232)]
+    [Challenge(233)]
+    [Challenge(235)]
+    [Challenge(264)]
+    [Challenge(295)]
+    [Challenge(330)]
+    [Challenge(343)]
+    [Challenge(348)]
     public class Last : Challenge
     {
         public Last(ChallengeRecord record, FightTeam team) : base(record, team)

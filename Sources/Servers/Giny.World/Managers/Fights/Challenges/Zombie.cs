@@ -14,6 +14,14 @@ namespace Giny.World.Managers.Fights.Challenges
           Perdre des points de mouvement en détaclant ne fait pas échouer le challenge.
       */
     [Challenge(1)]
+    [Challenge(115)]
+    [Challenge(123)]
+    [Challenge(139)]
+    [Challenge(145)]
+    [Challenge(175)]
+    [Challenge(210)]
+    [Challenge(226)]
+    [Challenge(285)]
     public class Zombie : Challenge
     {
         public Zombie(ChallengeRecord record, FightTeam team) : base(record, team)

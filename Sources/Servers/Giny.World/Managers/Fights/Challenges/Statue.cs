@@ -14,6 +14,24 @@ namespace Giny.World.Managers.Fights.Challenges
       * Attention à bien terminer votre combat sur la cellule sur laquelle vous avez commencé votre tour.
       */
     [Challenge(2)]
+    [Challenge(125)]
+    [Challenge(180)]
+    [Challenge(198)]
+    [Challenge(199)]
+    [Challenge(201)]
+    [Challenge(214)]
+    [Challenge(217)]
+    [Challenge(222)]
+    [Challenge(224)]
+    [Challenge(236)]
+    [Challenge(245)]
+    [Challenge(267)]
+    [Challenge(273)]
+    [Challenge(291)]
+    [Challenge(307)]
+    [Challenge(321)]
+    [Challenge(326)]
+    [Challenge(352)]
     public class Statue : Challenge
     {
         public Statue(ChallengeRecord record, FightTeam team) : base(record, team)
