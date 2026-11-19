@@ -9,6 +9,8 @@ using Giny.Protocol.Custom.Enums;
 using Giny.Protocol.Enums;
 using Giny.Protocol.Messages;
 using Giny.Protocol.Types;
+using Giny.ORM;
+using Giny.World.Managers.Effects;
 using Giny.World.Managers.Entities.Characters;
 using Giny.World.Managers.Entities.Monsters;
 using Giny.World.Managers.Fights.Cast;
@@ -108,6 +110,35 @@ namespace Giny.World.Managers.Fights
                         respawnTimer.Dispose();
                     }, false);
                 respawnTimer.Start();
+            if (Winners == GetTeam(TeamTypeEnum.TEAM_TYPE_PLAYER) && Started)
+            {
+                CaptureSoul();
+            }
+        }
+        /// <summary>
+        /// If a winner owns a soul stone powerful enough, the defeated monster group is
+        /// stored into the stone (Effect_SoulStoneSummon) and can be fought again.
+        /// </summary>
+        private void CaptureSoul()
+        {
+            var characters = Winners.GetFighters<CharacterFighter>().Select(x => x.Character);
+
+            foreach (var character in characters)
+            {
+                var stone = character.Inventory.GetItems().FirstOrDefault(x => x.Record.TypeEnum == ItemTypeEnum.SOUL_STONE
+                    && x.Effects.OfType<EffectDice>().Any(e => e.EffectEnum == EffectsEnum.Effect_SoulStone && e.Max >= MonsterGroup.GetMonsters().Sum(m => m.Grade.Level)));
+
+                if (stone == null)
+                {
+                    continue;
+                }
+
+                string captured = string.Join(";", MonsterGroup.GetMonsters().Select(x => x.Record.Id + "," + x.Grade.GradeId));
+
+                stone.Effects.Add(new EffectString((short)EffectsEnum.Effect_SoulStoneSummon, captured));
+                stone.UpdateLater();
+                character.Reply("L'ame du groupe a ete capturee dans la pierre.");
+                break;
             }
         }
         public bool GroupExistOnMap()
