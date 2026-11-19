@@ -16,5 +16,10 @@ namespace Giny.World.Handlers.Roleplay.Maps
         {
             client.Character.Map.Instance.UseInteractive(client.Character, message.elemId, message.skillInstanceUid);
         }
+        [MessageHandler]
+        public static void HandlePortalUseRequest(PortalUseRequestMessage message, WorldClient client)
+        {
+            client.Character.Map.Instance.UseInteractive(client.Character, message.portalId, 0);
+        }
     }
 }
