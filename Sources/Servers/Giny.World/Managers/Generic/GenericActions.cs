@@ -98,6 +98,27 @@ namespace Giny.World.Managers.Generic
         {
             character.OpenBank();
         }
+        [GenericActionHandler(GenericActionEnum.EnterDreams)]
+        public static void HandleEnterDreams(Character character, IGenericAction parameter)
+        {
+            Dreams.DreamsManager.Instance.EnterDreams(character);
+        }
+
+        [GenericActionHandler(GenericActionEnum.ExitDreams)]
+        public static void HandleExitDreams(Character character, IGenericAction parameter)
+        {
+            Dreams.DreamsManager.Instance.ExitDreams(character);
+        }
+
+        [GenericActionHandler(GenericActionEnum.UsePortal)]
+        public static void HandleUsePortal(Character character, IGenericAction parameter)
+        {
+            short cellId;
+            if (short.TryParse(parameter.Param2, out cellId))
+                character.Teleport(int.Parse(parameter.Param1), cellId);
+            else
+                character.Teleport(int.Parse(parameter.Param1));
+        }
         [GenericActionHandler(GenericActionEnum.Collect)]
         public static void HandleCollect(Character character, IGenericAction parameter)
         {

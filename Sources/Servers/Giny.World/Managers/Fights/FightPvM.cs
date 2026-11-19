@@ -11,6 +11,7 @@ using Giny.Protocol.Messages;
 using Giny.Protocol.Types;
 using Giny.ORM;
 using Giny.World.Managers.Effects;
+using Giny.World.Managers.Dreams;
 using Giny.World.Managers.Entities.Characters;
 using Giny.World.Managers.Entities.Monsters;
 using Giny.World.Managers.Fights.Cast;
@@ -90,6 +91,13 @@ namespace Giny.World.Managers.Fights
          */
         public override void OnFightEnded()
         {
+            if (DreamsManager.IsDreamMap(Map.Instance.Record))
+            {
+                foreach (var fighter in GetFighters<CharacterFighter>(false))
+                {
+                    DreamsManager.Instance.OnDreamFightEnded(fighter);
+                }
+            }
             if (ShowBlades && (this.Map.Instance.MonsterGroupCount < MonstersManager.MaxGroupPerMap))
             {
                 if (Winners == GetTeam(TeamTypeEnum.TEAM_TYPE_MONSTER) || !Started && MonsterGroup.RespawnOnVictory)

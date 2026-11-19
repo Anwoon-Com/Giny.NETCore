@@ -33,5 +33,8 @@ namespace Giny.World.Managers.Generic
         Paddock,
         StartQuest,
         ContinueDialog,
+        UsePortal,
+        EnterDreams,
+        ExitDreams,
     }
 }

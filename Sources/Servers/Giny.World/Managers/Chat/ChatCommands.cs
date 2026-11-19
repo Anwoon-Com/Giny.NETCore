@@ -79,6 +79,22 @@ namespace Giny.World.Managers.Chat
 
             client.Character.ReplyWarning(sb.ToString());
         }
+        [ChatCommand("songe", ServerRoleEnum.Player)]
+        public static void DreamsCommand(WorldClient client, string command, string[] args)
+        {
+            if (args.Length >= 2 && args[0] == "achat")
+            {
+                Dreams.DreamsManager.Instance.BuyWithDreamSand(client.Character, int.Parse(args[1]), args.Length > 2 ? int.Parse(args[2]) : 1);
+                return;
+            }
+            if (args.Length == 1 && args[0] == "sortie")
+            {
+                Dreams.DreamsManager.Instance.ExitDreams(client.Character);
+                return;
+            }
+            client.Character.Reply("/songe achat <gid> [prix] : echange du Sable des songes. /songe sortie : quitte les songes.");
+        }
+
         [ChatCommand("infos", ServerRoleEnum.Administrator)]
         public static void InfosCommand(WorldClient client)
         {

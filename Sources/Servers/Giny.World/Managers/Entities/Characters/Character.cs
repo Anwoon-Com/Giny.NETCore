@@ -143,6 +143,14 @@ namespace Giny.World.Managers.Entities.Characters
             get;
             set;
         }
+        /// <summary>
+        /// Current room number in the Puits des Songes. 0 = not in dreams.
+        /// </summary>
+        public int DreamsRooms
+        {
+            get;
+            set;
+        }
         public WorldClient Client
         {
             get;
@@ -1345,6 +1353,11 @@ namespace Giny.World.Managers.Entities.Characters
         [Annotation]
         public void OnEnterMap()
         {
+            if (Map != null && Map.SubareaId == Dreams.DreamsManager.DreamsSubareaId && DreamsRooms == 0)
+            {
+                DreamsRooms = 1;
+            }
+
 
             this.ChangeMap = false;
 

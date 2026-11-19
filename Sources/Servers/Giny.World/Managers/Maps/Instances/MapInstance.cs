@@ -341,6 +341,15 @@ namespace Giny.World.Managers.Maps.Instances
         {
             return (MapElement)m_elements.FirstOrDefault(x => x.Record.Identifier == identifier);
         }
+        public void AddElement(MapElement element)
+        {
+            m_elements.Add(element);
+        }
+        public void RemoveElement(MapElement element)
+        {
+            m_elements.Remove(element);
+        }
+
         public IEnumerable<T> GetElements<T>() where T : MapElement
         {
             return m_elements.OfType<T>();
