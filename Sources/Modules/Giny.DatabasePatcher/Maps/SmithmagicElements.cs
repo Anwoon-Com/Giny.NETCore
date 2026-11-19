@@ -18,18 +18,21 @@ namespace Giny.DatabasePatcher.Maps
             Logger.Write("Spawning smithmagic workshops ...");
 
             // Abraknydes workshop [-5,-13] (Hel Munster)
+            AddStation(149946368, 488201, InteractiveTypeEnum.MAGIC_ANVIL92, SkillTypeEnum.SMITHMAGE113);
             AddCrusher(149946368, 488126);
 
             // Bonta workshop [-29,-57]
             AddStations(217057286, 521408, 521407, 521409, 523833);
-            AddCrusher(217057286, 521406);
+            AddCrusher(217057286, 521674);
 
             // Brakmar workshop [-26,38]
             AddStations(216927751, 521410, 521411, 521412, 523832);
             AddCrusher(216927751, 521403);
 
-            // Pandala workshop [17,-29]
-            AddStations(211289088, 520502, 520501, 520499, 520500);
+            // Pandala workshop [17,-29] (no magic anvil)
+            AddStation(211289088, 520501, InteractiveTypeEnum.MAGIC_SEWING_MACHINE116, SkillTypeEnum.COSTUMAGE166);
+            AddStation(211289088, 520499, InteractiveTypeEnum.MAGIC_WORKSHOP117, SkillTypeEnum.JEWELMAGE168);
+            AddStation(211289088, 520500, InteractiveTypeEnum.MAGIC_TABLE118, SkillTypeEnum.SHOEMAGE164);
             AddCrusher(211289088, 520621);
 
             // Sufokia workshop [13,24]
