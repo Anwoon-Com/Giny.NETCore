@@ -165,7 +165,7 @@ namespace Giny.World.Managers.Generic
                 throw new Exception("Unable to craft. Invalid generic parameter.");
             }
 
-            character.OpenCraftExchange(element.Record.Skill.Record);
+            character.OpenCraftExchange(element.Skill.Record);
         }
         [GenericActionHandler(GenericActionEnum.Smithmagic)]
         public static void HandlSmithmagic(Character character, IGenericAction parameter)
@@ -177,7 +177,7 @@ namespace Giny.World.Managers.Generic
                 throw new Exception("Unable to craft. Invalid generic parameter.");
             }
 
-            character.OpenSmithmagicExchange(element.Record.Skill.Record);
+            character.OpenSmithmagicExchange(element.Skill.Record);
         }
 
         [GenericActionHandler(GenericActionEnum.RuneTrade)]

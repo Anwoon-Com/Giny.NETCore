@@ -1026,9 +1026,10 @@ namespace Giny.World.Managers.Entities.Characters
 
             var element = Map.Instance.GetElements<MapElement>().Where(x => x.Record.CellId == this.Record.CellId).FirstOrDefault();
 
-            if (element != null && element.Record.Skill != null && element.Record.Skill.ActionIdentifier == GenericActionEnum.Teleport)
+            if (element != null && element.Record.Skills != null && element.Record.Skills.Any(x => x.ActionIdentifier == GenericActionEnum.Teleport))
             {
-                Map.Instance.UseInteractive(this, element.Record.Identifier, 0);
+                var skill = element.Record.Skills.First(x => x.ActionIdentifier == GenericActionEnum.Teleport);
+                Map.Instance.UseInteractive(this, element.Record.Identifier, (int)skill.Id);
             }
         }
         public void CancelMove(short cellId)

@@ -60,7 +60,7 @@ namespace Giny.World.Managers.Maps.Elements
         {
             get
             {
-                return Record.Skill;
+                return Record.Skills.FirstOrDefault();
             }
         }
         /// <summary>
@@ -107,9 +107,9 @@ namespace Giny.World.Managers.Maps.Elements
             }
         }
 
-        protected override bool IsSkillEnabled(Character character, SkillRecord record)
+        protected override bool IsSkillEnabled(Character character, InteractiveSkillRecord skill)
         {
-            return base.IsSkillEnabled(character, record) && this.State != StatedElementState.Unactive;
+            return base.IsSkillEnabled(character, skill) && this.State != StatedElementState.Unactive;
         }
         private void OnUsedCallback_Elapsed(object sender, ElapsedEventArgs e)
         {

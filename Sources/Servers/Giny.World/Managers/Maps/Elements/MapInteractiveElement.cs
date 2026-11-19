@@ -3,6 +3,7 @@ using Giny.Protocol.Types;
 using Giny.World.Managers.Entities.Characters;
 using Giny.World.Managers.Maps.Instances;
 using Giny.World.Records.Maps;
+using System.Linq;
 
 namespace Giny.World.Managers.Maps.Elements
 {
@@ -13,14 +14,6 @@ namespace Giny.World.Managers.Maps.Elements
 
         }
 
-        protected InteractiveElementSkill[] GetInteractiveElementSkill()
-        {
-            return new InteractiveElementSkill[]
-            {
-                new InteractiveElementSkill((int)Record.Skill.SkillId, 0)
-            };
-        }
-
         public void Update()
         {
             foreach (var character in MapInstance.GetEntities<Character>())
@@ -28,22 +21,21 @@ namespace Giny.World.Managers.Maps.Elements
                 character.Client.Send(new InteractiveElementUpdatedMessage(GetInteractiveElement(character)));
             }
         }
-        protected virtual bool IsSkillEnabled(Character character, SkillRecord record)
+        protected virtual bool IsSkillEnabled(Character character, InteractiveSkillRecord skill)
         {
-            return character.SkillsAllowed.Contains(Record.Skill.Record);
+            return character.SkillsAllowed.Contains(skill.Record);
         }
         public InteractiveElement GetInteractiveElement(Character character)
         {
-            InteractiveElementSkill[] skills = GetInteractiveElementSkill();
+            var enabledSkills = Record.Skills.Where(x => IsSkillEnabled(character, x))
+                .Select(x => new InteractiveElementSkill((int)x.SkillId, (int)x.Id)).ToArray();
 
-            if (IsSkillEnabled(character, Record.Skill.Record))
-            {
-                return new InteractiveElement((int)Record.Identifier, (int)Record.Skill.Type, skills, new InteractiveElementSkill[0], true);
-            }
-            else
-            {
-                return new InteractiveElement((int)Record.Identifier, (int)Record.Skill.Type, new InteractiveElementSkill[0], skills, true);
-            }
+            var disabledSkills = Record.Skills.Where(x => !IsSkillEnabled(character, x))
+                .Select(x => new InteractiveElementSkill((int)x.SkillId, (int)x.Id)).ToArray();
+
+            var elementType = Record.Skills.Count > 0 ? (int)Record.Skills[0].Type : -1;
+
+            return new InteractiveElement((int)Record.Identifier, elementType, enabledSkills, disabledSkills, true);
         }
     }
 }

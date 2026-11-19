@@ -57,16 +57,18 @@ namespace Giny.World.Managers.Maps
 
             var element = elements.First();
 
-            if (element.Skill != null)
+            var skill = element.Skills != null ? element.Skills.FirstOrDefault(x => x.SkillId == skillType) : null;
+
+            if (skill != null)
             {
-                element.Skill.Param1 = param1;
-                element.Skill.Param2 = param2;
-                element.Skill.Param3 = param3;
-                element.Skill.SkillId = skillType;
-                element.Skill.Type = interactiveType;
-                element.Skill.ActionIdentifier = genericAction;
-                element.Skill.UpdateNow();
-                element.Skill.Record = SkillRecord.GetSkill(skillType);
+                skill.Param1 = param1;
+                skill.Param2 = param2;
+                skill.Param3 = param3;
+                skill.SkillId = skillType;
+                skill.Type = interactiveType;
+                skill.ActionIdentifier = genericAction;
+                skill.UpdateNow();
+                skill.Record = SkillRecord.GetSkill(skillType);
                 map.Instance.Reload();
             }
             else
@@ -87,7 +89,12 @@ namespace Giny.World.Managers.Maps
                     Record = SkillRecord.GetSkill(skillType),
                 };
 
-                element.Skill = skillRecord;
+                if (element.Skills == null)
+                {
+                    element.Skills = new List<InteractiveSkillRecord>();
+                }
+
+                element.Skills.Add(skillRecord);
                 skillRecord.AddNow();
                 map.Instance.Reload();
             }

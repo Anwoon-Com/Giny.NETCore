@@ -20,36 +20,45 @@ namespace Giny.World.Managers.Maps.Elements
             get;
             private set;
         }
+        /// <summary>
+        /// Skill currently being used on this element.
+        /// </summary>
+        public InteractiveSkillRecord Skill
+        {
+            get;
+            set;
+        }
         public GenericActionEnum ActionIdentifier
         {
-            get => Record.Skill.ActionIdentifier;
-            set => Record.Skill.ActionIdentifier = value;
+            get => Skill.ActionIdentifier;
+            set => Skill.ActionIdentifier = value;
         }
         public string Param1
         {
-            get => Record.Skill.Param1;
-            set => Record.Skill.Param1 = value;
+            get => Skill.Param1;
+            set => Skill.Param1 = value;
         }
         public string Param2
         {
-            get => Record.Skill.Param2;
-            set => Record.Skill.Param2 = value;
+            get => Skill.Param2;
+            set => Skill.Param2 = value;
         }
         public string Param3
         {
-            get => Record.Skill.Param3;
-            set => Record.Skill.Param3 = value;
+            get => Skill.Param3;
+            set => Skill.Param3 = value;
         }
         public string Criteria
         {
-            get => Record.Skill.Criteria;
-            set => Record.Skill.Criteria = value;
+            get => Skill.Criteria;
+            set => Skill.Criteria = value;
         }
 
         public MapElement(InteractiveElementRecord record, MapInstance mapInstance)
         {
             this.Record = record;
             this.MapInstance = mapInstance;
+            this.Skill = record.Skills.FirstOrDefault();
         }
 
         public virtual bool CanUse(Character character)

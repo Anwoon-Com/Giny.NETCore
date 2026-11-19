@@ -1,4 +1,4 @@
-﻿using Giny.Core;
+using Giny.Core;
 using Giny.Core.DesignPattern;
 using Giny.Core.Logging;
 using Giny.ORM;
@@ -29,7 +29,7 @@ namespace Giny.DatabasePatcher.Maps
 
                     foreach (var element in elements)
                     {
-                        if (!InteractiveSkillRecord.ExistAndHandled(element.Identifier))
+                        if (!InteractiveSkillRecord.ExistAndHandled(element.Identifier, element.MapId))
                         {
                             count++;
 
@@ -53,7 +53,7 @@ namespace Giny.DatabasePatcher.Maps
             {
                 foreach (var element in map.Elements.Where(x => x.Identifier != 0))
                 {
-                    if (!InteractiveSkillRecord.Exist(element.Identifier))
+                    if (!InteractiveSkillRecord.Exist(element.Identifier, map.Id))
                     {
                         MapsManager.Instance.AddInteractiveSkill(map, element.Identifier, GenericActionEnum.Unhandled,
                             (InteractiveTypeEnum)0, SkillTypeEnum.USE114);

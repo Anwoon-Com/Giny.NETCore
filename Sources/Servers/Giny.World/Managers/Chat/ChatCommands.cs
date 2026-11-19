@@ -162,13 +162,16 @@ namespace Giny.World.Managers.Chat
                 client.Character.ReplyWarning("Unable to find element : " + elementId);
                 return;
             }
-            if (element.Skill == null)
+            if (element.Skills == null || element.Skills.Count == 0)
             {
                 client.Character.ReplyWarning("Unable to find skill : " + elementId);
                 return;
             }
-            element.Skill.RemoveNow();
-            element.Skill = null;
+            foreach (var skill in element.Skills.ToArray())
+            {
+                skill.RemoveNow();
+            }
+            element.Skills.Clear();
 
             client.Character.Map.Instance.Reload();
         }
