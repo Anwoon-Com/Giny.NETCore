@@ -116,8 +116,7 @@ namespace Giny.World.Managers.Fights.Marks
             foreach (var newWall in newWalls)
             {
 
-                var old = oldWalls.FirstOrDefault(x => x.FirstBomb == newWall.FirstBomb && x.SecondBomb ==
-                newWall.SecondBomb);
+                var old = oldWalls.FirstOrDefault(x => x.IsWallMember(newWall.FirstBomb) && x.IsWallMember(newWall.SecondBomb));
 
                 if (old != null)
                 {
