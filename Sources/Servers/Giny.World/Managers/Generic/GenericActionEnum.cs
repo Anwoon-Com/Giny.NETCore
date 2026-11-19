@@ -36,5 +36,8 @@ namespace Giny.World.Managers.Generic
         UsePortal,
         EnterDreams,
         ExitDreams,
+        EnterHouse,
+        BuyHouse,
+        SellHouse,
     }
 }

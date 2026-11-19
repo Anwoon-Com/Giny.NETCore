@@ -1,10 +1,14 @@
-﻿using Giny.Protocol.Messages;
+﻿using Giny.ORM;
+using Giny.Protocol.Messages;
+using Giny.Protocol.Types;
 using Giny.World.Managers.Dialogs;
 using Giny.World.Managers.Entities.Characters;
 using Giny.World.Managers.Fights;
 using Giny.World.Managers.Maps.Elements;
 using Giny.World.Managers.Monsters;
 using Giny.World.Records.Bidshops;
+using Giny.World.Records.Houses;
+using Giny.World.Records.Characters;
 using Giny.World.Records.Items;
 using Giny.World.Records.Maps;
 using Giny.World.Records.Monsters;
@@ -118,6 +122,70 @@ namespace Giny.World.Managers.Generic
                 character.Teleport(int.Parse(parameter.Param1), cellId);
             else
                 character.Teleport(int.Parse(parameter.Param1));
+        [GenericActionHandler(GenericActionEnum.EnterHouse)]
+        public static void HandleEnterHouse(Character character, IGenericAction parameter)
+        {
+            var house = HouseRecord.GetHouse(long.Parse(parameter.Param1));
+
+            if (house == null || (house.OwnerId != 0 && house.OwnerId != character.Id && !CanEnterAsGuildmate(character, house)))
+            {
+                character.ReplyWarning("Vous ne pouvez pas entrer dans cette maison.");
+                return;
+            }
+            short cellId;
+            if (short.TryParse(parameter.Param3, out cellId))
+                character.Teleport(int.Parse(parameter.Param2), cellId);
+            else
+                character.Teleport(int.Parse(parameter.Param2));
+        }
+        /// <summary>
+        /// Guild house : a guildmate can enter a guild-shared house.
+        /// </summary>
+        private static bool CanEnterAsGuildmate(Character character, HouseRecord house)
+        {
+            if (!house.GuildShared || !character.HasGuild)
+            {
+                return false;
+            }
+            var owner = CharacterRecord.GetCharacterRecord(house.OwnerId);
+            return owner != null && owner.GuildId == character.Record.GuildId;
+        }
+
+        [GenericActionHandler(GenericActionEnum.BuyHouse)]
+        public static void HandleBuyHouse(Character character, IGenericAction parameter)
+        {
+            var house = HouseRecord.GetHouse(long.Parse(parameter.Param1));
+
+            if (house == null)
+                return;
+
+            character.CurrentHouseId = house.Id;
+
+            character.Client.Send(new HousePropertiesMessage((int)house.Id, new int[0],
+                new HouseInstanceInformations()
+                {
+                    hasOwner = house.OwnerId != 0,
+                    isLocked = true,
+                    price = house.Price,
+                    secondHand = false,
+                }));
+        }
+        [GenericActionHandler(GenericActionEnum.SellHouse)]
+        public static void HandleSellHouse(Character character, IGenericAction parameter)
+        {
+            var house = HouseRecord.GetHouse(long.Parse(parameter.Param1));
+
+            if (house == null || house.OwnerId != character.Id)
+                return;
+
+            long price;
+            if (long.TryParse(parameter.Param2, out price) && price > 0)
+            {
+                house.Price = price;
+            }
+            house.OnSale = true;
+            house.UpdateLater();
+            character.Reply("Votre maison est en vente.");
         }
         [GenericActionHandler(GenericActionEnum.Collect)]
         public static void HandleCollect(Character character, IGenericAction parameter)
