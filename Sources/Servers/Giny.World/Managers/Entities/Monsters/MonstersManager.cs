@@ -123,7 +123,26 @@ namespace Giny.World.Managers.Monsters
                 {
                     MonsterRecord template = MonsterRecord.GetMonsterRecord(monsterSpawn.MonsterId);
 
-                    var count = random.Next(1, MaximumSimilarMonsterPerGroup + 1);
+                    // Official miniboss system : a wanted monster has a chance
+                    // to replace its base monster (MonsterMiniBoss D2O data).
+                    if (WantedMonsters.MinibossOf.TryGetValue((int)template.Id, out int minibossId)
+                        && random.NextDouble() < WantedMonsters.ReplacementRatio)
+                    {
+                        var miniboss = MonsterRecord.GetMonsterRecord((short)minibossId);
+
+                        if (miniboss != null && !IsMonsterInSubarea(monsterSpawn.SubareaId, miniboss.Id))
+                        {
+                            template = miniboss;
+                        }
+                    }
+
+                    // Wanted monsters (quest monsters / minibosses) are unique in their zone.
+                    if ((template.IsQuestMonster || template.IsMiniBoss) && IsMonsterInSubarea(monsterSpawn.SubareaId, template.Id))
+                    {
+                        continue;
+                    }
+
+                    var count = (template.IsQuestMonster || template.IsMiniBoss) ? 1 : random.Next(1, MaximumSimilarMonsterPerGroup + 1);
 
                     for (int i = 0; i < count; i++)
                     {
@@ -145,7 +164,31 @@ namespace Giny.World.Managers.Monsters
                 group.AddMonster(monster);
             }
 
+            // Wanted groups have spawn priority : remove a regular group when the map is full.
+            if (group.HasWantedMonster() && instance.MonsterGroupCount >= MaxGroupPerMap)
+            {
+                var expendable = instance.GetEntities<MonsterGroup>().FirstOrDefault(x => !x.HasWantedMonster());
+
+                if (expendable != null)
+                {
+                    instance.RemoveEntity(expendable.Id);
+                }
+            }
+
             instance.AddEntity(group);
+        }
+
+        public bool IsMonsterInSubarea(long subareaId, long monsterId)
+        {
+            foreach (var map in MapRecord.GetMaps().Where(x => x.SubareaId == subareaId))
+            {
+                if (map.Instance != null && map.Instance.GetEntities<MonsterGroup>()
+                    .Any(x => x.GetMonsters().Any(m => m.Record.Id == monsterId)))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         public void SpawnDungeonGroup(MapRecord map)
