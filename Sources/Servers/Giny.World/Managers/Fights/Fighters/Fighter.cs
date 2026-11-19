@@ -1249,7 +1249,10 @@ namespace Giny.World.Managers.Fights.Fighters
 
             Set set;
 
-            if (spellLevel.RangeCanBeBoosted)
+            bool rangeable = spellLevel.RangeCanBeBoosted
+                || SpellModifiers.GetModifierBoost(spellLevel.SpellId, SpellModifierTypeEnum.RANGEABLE) != 0;
+
+            if (rangeable)
             {
                 range += Stats[CharacteristicEnum.RANGE].TotalInContext();
 
