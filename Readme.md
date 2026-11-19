@@ -1,49 +1,82 @@
-# Giny - A Dofus Server Emulator
+# Giny.NETCore
 
-Giny is a comprehensive and modular server emulator for the popular MMORPG, Dofus, written entirely in C# .NET. It provides a robust foundation for recreating the server-side logic of the game, allowing developers to host their own Dofus worlds. The emulator is designed with a clear separation of concerns, broken down into several distinct projects that work together to deliver a complete and extensible Dofus experience.
+Serveur Dofus 2.x (client ~2.68) écrit en C# / .NET 6, dérivé du projet Giny.
 
-This emulator is not Stump.
+## Contenu
 
-**I am no longer maintaining this project and I am not actively working on it anymore. Please do not contact me for help, unfortunately I don’t have the time, sorry!**
+| Projet | Rôle |
+|---|---|
+| `Sources/Servers/Giny.Auth` | Serveur d'authentification (login, sélection de serveur) |
+| `Sources/Servers/Giny.World` | Serveur de jeu (cartes, combats, métiers, échanges, quêtes...) |
+| `Sources/Giny.Core` | Utilitaires communs (logs, config, pool, extensions) |
+| `Sources/Giny.ORM` | ORM maison (records `[Table]`, sauvegarde cyclique) |
+| `Sources/Giny.Protocol` | Messages et types du protocole Dofus |
+| `Sources/Giny.IO` | Lecteurs de données client (D2O, D2P, DLM...) |
+| `Sources/Modules/*` | Modules serveur : patcher de base (interactifs...), drops, zaap donjon, Pokéfus, monstres de forgemagie |
+| `Sources/Tools/Giny.WorldEditor` | Éditeur web du monde (items, sorts, monstres, quêtes) |
+| `Sources/Tools/Giny.MapEditor` | Éditeur de cartes |
+| `Sources/Sync/*` | Outils de synchronisation (D2O → base, builder de protocole, AS3) |
+| `Sources/Zaap/*` | Launcher (Uplauncher) et passerelle Zaap |
 
-## Components
+## Prérequis
 
-Giny's architecture is divided into the following key components:
+- **.NET 6 SDK** (Windows recommandé : certaines étapes post-build utilisent `copy`)
+- Une base **SQL** (le nom, hôte et identifiants se configurent dans les fichiers de config des serveurs)
+- Un **client Dofus** compatible, dont les données `data/common` (D2O) sont lues par `Giny.IO`
 
-### Core & I/O
+## Build
 
-*   **Giny.Core**: This foundational project contains a collection of C# utilities that are not directly related to Dofus but provide essential functionalities. These include robust systems for serialization and cryptography, as well as networking tools that form the backbone of the server's communication.
+```bash
+dotnet restore Sources/Giny.sln
+dotnet build Sources/Servers/Giny.Auth/Giny.Auth.csproj
+dotnet build Sources/Servers/Giny.World/Giny.World.csproj
+```
 
-*   **Giny.IO**: This component serves as a serialization wrapper specifically designed to handle Dofus's proprietary client files. It allows the server to read and interpret the various data files used by the Dofus client, a crucial step in accurately recreating the game world.
+> ⚠️ La solution entière en une seule commande échoue parfois : plusieurs projets
+> partagent des étapes post-build `copy` sur les mêmes sorties. Compiler chaque
+> serveur séparément.
 
-### Database & Protocol
+## Lancement
 
-*   **Giny.ORM**: A custom-built Object-Relational Mapper (ORM) is included to manage all interactions with the server's database. This tailored ORM is designed to handle the specific data structures and relationships found within the Dofus game.
+1. Configurer la connexion SQL dans `Giny.Auth` / `Giny.World` (`config.json`)
+2. Lancer `Giny.DatabasePatcher` pour préparer/patcher la base (interactifs de métiers, tables manquantes)
+3. Démarrer `Giny.Auth` puis `Giny.World`
+4. Connecter le client sur le port de l'auth server
 
-*   **Giny.Protocol**: The communication between the Dofus client and server is facilitated by a specific network protocol. Giny.Protocol is an auto-generated library that precisely mirrors the protocol used by the Dofus client sources. This ensures seamless communication and compatibility between the client and the Giny emulator. It is utilized by both the authentication and world servers.
+## Architecture (world server)
 
-### Game Servers
+- **`Records/`** — tables persistantes ([Table], [Primary], [Update], [Container])
+- **`Managers/`** — logique métier : `Fights` (combats, effets de sorts, zones, buffs, triggers), `Items` (inventaire, effets d'objets), `Maps` (instances, éléments interactifs, NPC, groupes de monstres), `Exchanges` (échanges, métiers, HDV, forgemagie, multicraft), `Dialogs`, `Quests`, `Guilds`...
+- **`Handlers/`** — dispatch des messages réseau (`[MessageHandler]`)
+- **`Network/`** — client/serveur TCP
 
-*   **Giny.World**: This is the heart of the emulator, containing the core logic for the Dofus world server. It manages everything from player movement and interaction to NPC behavior, combat mechanics, and all other gameplay-related features.
+### Effets de sorts
 
-*   **Giny.Auth**: The authentication server is a separate component responsible for handling player logins and authentication requests. It validates user credentials and, upon successful authentication, directs the player to the world server.
+`Managers/Fights/Effects/SpellEffectHandler` — un handler par `EffectsEnum`. Les zones
+d'effet (`Zones/`) mappent les caractères de zone Dofus (`X`, `C`, `L`, `T`, `B`, `A`...)
+vers des formes (`Cross`, `Lozenge`, `Line`, `TShape`...).
 
-### Development Tools
+### Montures / enclos
 
-Giny also includes a suite of powerful tools to aid in the development and customization of your Dofus server:
+`Records/Mounts/MountRecord` + `MountsHandler`. Les certificats de monture créent la
+monture à l'utilisation ; `GenericActionEnum.Paddock` (interactif enclos, `!paddock`)
+permet de déposer/reprendre sa monture ; `!enclos` stobule depuis n'importe quelle carte.
 
-*   **Giny.MapEditor**: A work-in-progress implementation of a Dofus map editor. This tool is intended to allow for the creation and modification of in-game maps.
+## API web
 
-*   **Giny.Uplauncher**: A launcher for the game (connecting to zaap server)
-  
-*   **Giny.SpellTree**: For developers and server administrators interested in the intricate details of character abilities, Giny.SpellTree provides a visual representation of spell effects. Written in WPF, this tool helps in understanding and customizing the game's complex spell system.
+Chaque serveur expose une API ASP.NET (`Web/`):
 
-*   **Giny.WorldEditor**: Built with MudBlazor, this tool provides a user-friendly interface for editing both `.d2o` game files and the server's database content. This allows for easy modification of items, monsters, quests, and other game data.
+- `POST /account/auth` — connexion (auth server)
+- `POST /account/register` — inscription
+- `GET /profile/{name}` — profil public d'un personnage
+- `GET /news` — actualités (fichier `news.json` éditable)
+- `GET /common/stats` — statistiques du serveur en ligne
 
-*   **Giny.ProtocolBuilder**: This essential tool automates the process of generating the Dofus network protocol from the client's source files. This ensures that the emulator can stay up-to-date with any changes introduced in new versions of the Dofus client.
+## Chat commands
 
-*   **Giny.DatabaseSynchronizer**: To create an accurate and functional game world, the server's database must be populated with data from the Dofus client. This tool is used to automatically generate the server database from the client's local database files.
+Préfixe `!` en jeu. Exemples : `!help`, `!infos`, `!elements`, `!smith`, `!paddock`,
+`!enclos`, `!monsters`, `!craft`... (voir `Managers/Chat/ChatCommands.cs`).
 
-ClickUp : https://app.clickup.com/9003026450/v/s/90030432232
+## CI
 
-Client link : https://mega.nz/file/9QkVmAZT#-0HA6YtFf7PGJQ8N-qtJCmRdafpMZPU7TkxbbF3RXaM
+`.github/workflows/build.yml` — build `Sources/Giny.sln` (Windows, .NET 6) sur push/PR.
