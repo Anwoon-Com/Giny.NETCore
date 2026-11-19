@@ -49,6 +49,8 @@ namespace Giny.World.Managers.Maps.Instances
 
         private ActionTimer m_monsterSpawner;
 
+        private ActionTimer m_entityMovement;
+
         private ConcurrentDictionary<int, Fight> m_fights = new ConcurrentDictionary<int, Fight>();
 
         private ReversedUniqueIdProvider m_npIdPopper = new ReversedUniqueIdProvider(0);
@@ -72,6 +74,16 @@ namespace Giny.World.Managers.Maps.Instances
             this.Record = record;
             this.m_elements = new List<MapElement>(Record.Elements.Where(x => x.Skills != null && x.Skills.Count > 0).Select(x => x.GetMapElement(this)).ToList());
             InitializeSpawnCycle();
+            this.m_entityMovement = new ActionTimer(EntityMovementInterval, MoveEntities, true);
+            this.m_entityMovement.Start();
+        }
+        private const int EntityMovementInterval = 8;
+        private void MoveEntities()
+        {
+            foreach (var group in GetEntities<MonsterGroup>().Shuffle())
+            {
+                group.MoveRandomly();
+            }
         }
         private void InitializeSpawnCycle()
         {
@@ -126,8 +138,6 @@ namespace Giny.World.Managers.Maps.Instances
             {
                 character.Client.Send(GetMapComplementaryInformationsDataMessage(character));
             }
-
-            InitializeSpawnCycle();
         }
 
         public void AddEntity(Entity entity)
