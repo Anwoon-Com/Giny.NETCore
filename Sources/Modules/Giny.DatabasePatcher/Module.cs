@@ -50,6 +50,7 @@ namespace Giny.DatabasePatcher
             MapPlacements.Patch();
             SpellCategories.Patch();
             MonsterKamas.Patch();
+            Monsters.TurretStats.Patch();
 
             Logger.Write("World database patched.", Channels.Info);
         }
