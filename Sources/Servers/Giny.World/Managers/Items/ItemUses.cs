@@ -136,6 +136,24 @@ namespace Giny.World.Managers.Items
             return true;
         }
 
+        [ItemUsageHandler(EffectsEnum.Effect_LearnSmileyPack)]
+        public static bool LearnSmileyPack(Character character, EffectInteger effect)
+        {
+            if (effect is EffectDice dice)
+            {
+                for (short i = (short)dice.Min; i <= (short)dice.Max; i++)
+                {
+                    character.LearnEmote(i);
+                }
+            }
+
+            if (effect.Value > 0)
+            {
+                character.LearnEmote((short)effect.Value);
+            }
+
+            return true;
+        }
         [ItemUsageHandler(EffectsEnum.Effect_AddPermanentAgility)]
         public static bool PermanentAgility(Character character, EffectInteger effect)
         {
