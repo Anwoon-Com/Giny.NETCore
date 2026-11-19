@@ -347,6 +347,11 @@ namespace Giny.World.Managers.Entities.Characters
             get;
             set;
         }
+        public bool MultiCraftAllowed
+        {
+            get;
+            set;
+        }
         public List<SkillRecord> SkillsAllowed
         {
             get;
