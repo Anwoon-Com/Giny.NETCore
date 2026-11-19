@@ -96,17 +96,21 @@ namespace Giny.World.Records.Maps
             set;
         }
 
-        public static bool Exist(int identifier)
+        public static bool Exist(int identifier, long mapId = -1)
         {
-            return InteractiveSkills.Any(x => x.Value.Identifier == identifier);
+            return InteractiveSkills.Any(x => x.Value.Identifier == identifier && (mapId == -1 || x.Value.MapId == mapId));
         }
-        public static bool ExistAndHandled(int identifier)
+        public static bool ExistAndHandled(int identifier, long mapId = -1)
         {
-            return InteractiveSkills.Any(x => x.Value.Identifier == identifier && x.Value.ActionIdentifier != GenericActionEnum.Unhandled);
+            return InteractiveSkills.Any(x => x.Value.Identifier == identifier && x.Value.ActionIdentifier != GenericActionEnum.Unhandled && (mapId == -1 || x.Value.MapId == mapId));
         }
         public static InteractiveSkillRecord GetInteractiveSkill(long id)
         {
-            return InteractiveSkills.Values.FirstOrDefault(x => x.Identifier == id);
+            return InteractiveSkills.Values.FirstOrDefault(x => x.Id == id);
+        }
+        public static List<InteractiveSkillRecord> GetInteractiveSkills(long identifier, long mapId)
+        {
+            return InteractiveSkills.Values.Where(x => x.Identifier == identifier && (x.MapId == mapId || x.MapId == 0)).ToList();
         }
 
         [StartupInvoke("Interactive skills members", StartupInvokePriority.SixthPath)]

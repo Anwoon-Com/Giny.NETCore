@@ -241,7 +241,7 @@ namespace Giny.World.Records.Maps
             foreach (var element in this.Elements)
             {
                 element.MapId = this.Id;
-                element.Skill = InteractiveSkillRecord.GetInteractiveSkill(element.Identifier);
+                element.Skills = InteractiveSkillRecord.GetInteractiveSkills(element.Identifier, this.Id);
             }
 
             this.IsDungeonEntrance = DungeonRecord.IsDungeonEntrance(Id);
@@ -290,7 +290,7 @@ namespace Giny.World.Records.Maps
         }
         public InteractiveElementRecord GetFirstElementRecord(InteractiveTypeEnum type)
         {
-            return Elements.FirstOrDefault(x => x.Skill != null && x.Skill.Type == type);
+            return Elements.FirstOrDefault(x => x.Skills != null && x.Skills.Any(y => y.Type == type));
         }
         public bool HasZaap()
         {
@@ -397,7 +397,7 @@ namespace Giny.World.Records.Maps
             get;
             set;
         }
-        public InteractiveSkillRecord Skill // this should be an array if we follow official
+        public List<InteractiveSkillRecord> Skills
         {
             get;
             set;

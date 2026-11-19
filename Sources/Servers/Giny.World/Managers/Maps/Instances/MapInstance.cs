@@ -70,7 +70,7 @@ namespace Giny.World.Managers.Maps.Instances
         public MapInstance(MapRecord record)
         {
             this.Record = record;
-            this.m_elements = new List<MapElement>(Record.Elements.Where(x => x.Skill != null).Select(x => x.GetMapElement(this)).ToList());
+            this.m_elements = new List<MapElement>(Record.Elements.Where(x => x.Skills != null && x.Skills.Count > 0).Select(x => x.GetMapElement(this)).ToList());
             InitializeSpawnCycle();
         }
         private void InitializeSpawnCycle()
@@ -120,7 +120,7 @@ namespace Giny.World.Managers.Maps.Instances
 
         public void Reload()
         {
-            this.m_elements = new List<MapElement>(Record.Elements.Where(x => x.Skill != null).Select(x => x.GetMapElement(this)).ToList());
+            this.m_elements = new List<MapElement>(Record.Elements.Where(x => x.Skills != null && x.Skills.Count > 0).Select(x => x.GetMapElement(this)).ToList());
 
             foreach (var character in GetEntities<Character>())
             {
@@ -361,24 +361,25 @@ namespace Giny.World.Managers.Maps.Instances
             }
             return sb.ToString();
         }
-        /// <summary>
-        /// yet, i dont think more then one skill by element is effective for a private server
-        /// </summary>
         public void UseInteractive(Character character, int elemId, int skillInstanceUid)
         {
             var element = this.GetElement<MapElement>(elemId);
 
             if (element != null && element.CanUse(character) && !character.Busy)
             {
-                if (element != null)
+                var skill = element.Record.Skills.FirstOrDefault(x => x.Id == skillInstanceUid) ?? element.Record.Skills.FirstOrDefault();
+
+                if (skill != null)
                 {
+                    element.Skill = skill;
+
                     if (GenericActionsManager.Instance.IsHandled(element))
                     {
-                        bool canMove = element.Record.Skill.Record.ParentBonesIds.Count == 0; /* Should be working */
+                        bool canMove = skill.Record.ParentBonesIds.Count == 0; /* Should be working */
 
                         short duration = canMove ? (short)0 : SkillsManager.SKILL_DURATION; /* Duration should be related to job level (its not a const) */
 
-                        character.SendMap(new InteractiveUsedMessage(character.Id, elemId, (short)element.Record.Skill.SkillId, duration, canMove));
+                        character.SendMap(new InteractiveUsedMessage(character.Id, elemId, (short)skill.SkillId, duration, canMove));
                         GenericActionsManager.Instance.Handle(character, element);
                     }
                     else

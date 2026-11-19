@@ -1,4 +1,4 @@
-﻿using Giny.Core;
+using Giny.Core;
 using Giny.Protocol.Custom.Enums;
 using Giny.Protocol.Enums;
 using Giny.World.Managers.Generic;
@@ -58,7 +58,7 @@ namespace Giny.DatabasePatcher.Maps
 
                     if (ZaapiGfxIds.Contains(element.GfxId) && element.IsInMap())
                     {
-                        if (!InteractiveSkillRecord.ExistAndHandled(element.Identifier))
+                        if (!InteractiveSkillRecord.ExistAndHandled(element.Identifier, map.Id))
                         {
                             TeleportersManager.Instance.AddDestination(
                             TeleporterTypeEnum.TELEPORTER_SUBWAY,
@@ -85,7 +85,7 @@ namespace Giny.DatabasePatcher.Maps
                             zoneId = 2;
                         }
 
-                        if (!InteractiveSkillRecord.ExistAndHandled(element.Identifier))
+                        if (!InteractiveSkillRecord.ExistAndHandled(element.Identifier, map.Id))
                         {
                             TeleportersManager.Instance.AddDestination(TeleporterTypeEnum.TELEPORTER_ZAAP,
                             InteractiveTypeEnum.ZAAP16,

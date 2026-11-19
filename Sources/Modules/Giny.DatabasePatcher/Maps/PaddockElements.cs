@@ -1,4 +1,4 @@
-﻿using Giny.Core;
+using Giny.Core;
 using Giny.Protocol.Custom.Enums;
 using Giny.Protocol.Enums;
 using Giny.World.Managers.Generic;
@@ -42,7 +42,7 @@ namespace Giny.DatabasePatcher.Maps
 
                     if (PaddockGfxId.Contains(element.GfxId) && element.IsInMap())
                     {
-                        if (!InteractiveSkillRecord.ExistAndHandled(element.Identifier))
+                        if (!InteractiveSkillRecord.ExistAndHandled(element.Identifier, map.Id))
                         {
                             MapsManager.Instance.AddInteractiveSkill(map, element.Identifier, GenericActionEnum.Paddock,
                                 InteractiveTypeEnum.PADDOCK120, SkillTypeEnum.ACCESS175);
