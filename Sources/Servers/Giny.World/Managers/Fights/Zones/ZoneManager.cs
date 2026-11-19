@@ -95,6 +95,9 @@ namespace Giny.World.Managers.Fights.Zones
                     result = new Line(zoneSize, zoneMinSize, true, stopAtTarget);
                     break;
                 case ZoneEnum.T:
+                    result = new TShape(zoneSize);
+                    break;
+                case ZoneEnum.B:
                     result = new Cross(0, zoneSize)
                     {
                         OnlyPerpendicular = true
