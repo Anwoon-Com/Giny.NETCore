@@ -103,6 +103,30 @@ namespace Giny.World.Managers.Fights.AI
                 value += 10;
             }
 
+            // Evaluate area of effect : reward hitting several enemies, penalize friendly fire.
+            var affectedCells = new HashSet<short>();
+            var direction = cast.CastCell.Point.OrientationTo(cast.TargetCell.Point);
+
+            foreach (var effect in cast.Spell.Level.Effects)
+            {
+                var zone = effect.GetZone(direction);
+                if (zone == null)
+                    continue;
+
+                foreach (var cell in zone.GetCells(cast.TargetCell, cast.CastCell, Fighter.Fight.Map))
+                {
+                    affectedCells.Add(cell.Id);
+                }
+            }
+
+            foreach (var fighter in Fighter.Fight.GetFighters())
+            {
+                if (!fighter.Alive || !affectedCells.Contains(fighter.Cell.Id))
+                    continue;
+
+                value += fighter.IsFriendlyWith(Fighter) ? -8 : 5;
+            }
+
             return value;
         }
         private List<SpellCast> GetSpellCasts(CellRecord cell)
