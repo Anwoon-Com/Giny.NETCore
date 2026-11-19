@@ -2,6 +2,7 @@
 using Giny.Protocol.Enums;
 using Giny.World.Managers.Entities.Characters;
 using Giny.World.Managers.Fights.Fighters;
+using Giny.World.Managers.Entities.TaxCollectors;
 using Giny.World.Managers.Monsters;
 using Giny.World.Records.Maps;
 using Giny.World.Records.Monsters;
@@ -61,6 +62,21 @@ namespace Giny.World.Managers.Fights
             FightTeam redTeam = new FightTeam(TeamEnum.TEAM_CHALLENGER, map.RedCells, AlignmentSideEnum.ALIGNMENT_WITHOUT, TeamTypeEnum.TEAM_TYPE_PLAYER);
 
             var fight = new FightPvM(origin, PopId(), map, blueTeam, redTeam, cell, group);
+            Fights.TryAdd(fight.Id, fight);
+            return fight;
+        }
+
+        public FightTaxCollector CreateFightTaxCollector(Character origin, TaxCollector taxCollector, MapRecord map, CellRecord cell)
+        {
+            FightTeam blueTeam = new FightTeam(TeamEnum.TEAM_DEFENDER, map.BlueCells, AlignmentSideEnum.ALIGNMENT_WITHOUT, TeamTypeEnum.TEAM_TYPE_MONSTER);
+            FightTeam redTeam = new FightTeam(TeamEnum.TEAM_CHALLENGER, map.RedCells, AlignmentSideEnum.ALIGNMENT_WITHOUT, TeamTypeEnum.TEAM_TYPE_PLAYER);
+
+            var group = new MonsterGroup(map, taxCollector.CellId);
+            var record = MonsterRecord.GetMonsterRecord(TaxCollector.MonsterId);
+            var monster = new Monster(record, group.GetCell());
+            group.AddMonster(monster);
+
+            var fight = new FightTaxCollector(origin, PopId(), map, blueTeam, redTeam, cell, group, taxCollector);
             Fights.TryAdd(fight.Id, fight);
             return fight;
         }

@@ -33,7 +33,7 @@ namespace Giny.World.Managers.Fights
 
         public override bool SpawnJoin => true;
 
-        private MonsterGroup MonsterGroup
+        protected MonsterGroup MonsterGroup
         {
             get;
             set;
@@ -88,6 +88,8 @@ namespace Giny.World.Managers.Fights
         /*
          * When fight ended.
          */
+        public const int TaxCollectorKamasPercent = 10;
+        public const int TaxCollectorItemsPercent = 10;
         public override void OnFightEnded()
         {
             if (ShowBlades && (this.Map.Instance.MonsterGroupCount < MonstersManager.MaxGroupPerMap))
@@ -114,6 +116,28 @@ namespace Giny.World.Managers.Fights
             if (Winners == GetTeam(TeamTypeEnum.TEAM_TYPE_PLAYER) && Started)
             {
                 CaptureSoul();
+
+                // Tax collector : the zone collector takes a share of the loot.
+                var collector = Map.Instance.GetEntities<Giny.World.Managers.Entities.TaxCollectors.TaxCollector>().FirstOrDefault();
+
+                if (collector != null)
+                {
+                    var droppers = GetTeam(TeamTypeEnum.TEAM_TYPE_MONSTER).GetFighters<Fighter>(false).Where(x => !x.Alive && x.CanDrop);
+                    collector.Collect((long)(droppers.Sum(x => x.GetDroppedKamas()) * TaxCollectorKamasPercent / 100d));
+
+                    // Item share : the collector also loots a share of monster drops.
+                    var random = new Random();
+                    foreach (var monster in droppers.OfType<MonsterFighter>().Select(x => x.Record))
+                    {
+                        foreach (var drop in monster.Drops)
+                        {
+                            if (random.Next(100) < TaxCollectorItemsPercent)
+                            {
+                                collector.CollectItem(drop.ItemGId, 1);
+                            }
+                        }
+                    }
+                }
             }
         }
         /// <summary>
