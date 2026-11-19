@@ -49,7 +49,20 @@ namespace Giny.World.Managers.Chat
 {
     class ChatCommands
     {
-        [ChatCommand("help", ServerRoleEnum.Player)]
+        [ChatCommand("coffre", ServerRoleEnum.Player)]
+        public static void OpenHavenBagChest(WorldClient client)
+        {
+            if (client.Character.Map != null && client.Character.Map.Id == 0)
+            {
+                client.Character.OpenBank();
+            }
+            else
+            {
+                client.Character.ReplyError("Disponible uniquement dans le havre-sac.");
+            }
+        }
+
+[ChatCommand("help", ServerRoleEnum.Player)]
         public static void HelpCommand(WorldClient client)
         {
             StringBuilder sb = new StringBuilder();

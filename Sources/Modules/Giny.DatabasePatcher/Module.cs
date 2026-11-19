@@ -45,6 +45,7 @@ namespace Giny.DatabasePatcher
             CraftTableElements.Patch();
             SmithmagicElements.Patch();
             PaddockElements.Patch();
+            HavenBagElements.Patch();
             MonsterSpawns.Patch();
             TeleporterElements.Patch();
             MapPlacements.Patch();
