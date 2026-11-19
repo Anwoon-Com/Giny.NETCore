@@ -24,6 +24,17 @@ using System.Threading.Tasks;
 
 namespace Giny.World.Managers.Items
 {
+    public class CandyBoost
+    {
+        public EffectCollection Effects;
+        public int RemainingFights;
+
+        public CandyBoost(EffectCollection effects, int remainingFights)
+        {
+            this.Effects = effects;
+            this.RemainingFights = remainingFights;
+        }
+    }
     public class ItemUses
     {
         [ItemUsageHandler(EffectsEnum.Effect_SoulStoneSummon)]
@@ -63,6 +74,22 @@ namespace Giny.World.Managers.Items
             }
 
             MonstersManager.Instance.AddFixedMonsterGroup(character.Map.Instance, character.CellId, monsters.ToArray(), grades.ToArray());
+            return true;
+        }
+        /// <summary>
+        /// Candies / boost food : applies the item stat effects to the character for
+        /// Effect_RemainingFights fights, then they expire.
+        /// </summary>
+        [ItemUsageHandler(ItemTypeEnum.BOOST_FOOD)]
+        public static bool UseBoostFood(Character character, CharacterItemRecord item)
+        {
+            var remainingFights = item.Effects.OfType<EffectInteger>().FirstOrDefault(x => x.EffectEnum == EffectsEnum.Effect_RemainingFights);
+
+            int fights = remainingFights != null ? remainingFights.Value : 1;
+
+            ItemEffectsManager.Instance.AddEffects(character, item.Effects);
+            character.ActiveBoosts.Add(new CandyBoost(item.Effects, fights));
+            character.RefreshStats();
             return true;
         }
         [ItemUsageHandler(EffectsEnum.Effect_LearnSpell)]
@@ -136,6 +163,18 @@ namespace Giny.World.Managers.Items
             }
             character.KeyringUsages[map.Id] = week;
             character.Teleport(map.Id);
+            return true;
+        }
+        /// <summary>
+        /// Candies : apply the appearance (bones id) carried by the effect to the character.
+        /// </summary>
+        [ItemUsageHandler(EffectsEnum.Effect_ChangeAppearance)]
+        public static bool ChangeAppearance(Character character, EffectInteger effect)
+        {
+            var look = character.Look.Clone();
+            look.SetBones((short)effect.Value);
+            character.Record.ContextualLook = look;
+            character.RefreshActorOnMap();
             return true;
         }
         [ItemUsageHandler(EffectsEnum.Effect_LearnEmote)]
