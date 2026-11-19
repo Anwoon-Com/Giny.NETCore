@@ -13,6 +13,7 @@ using Giny.World.Managers.Achievements;
 using Giny.World.Managers.Bidshops;
 using Giny.World.Managers.Breeds;
 using Giny.World.Managers.Criterias;
+using Giny.World.Managers.Criterions.Handlers;
 using Giny.World.Managers.Dialogs;
 using Giny.World.Managers.Dialogs.DialogBox;
 using Giny.World.Managers.Entities.Characters.HumanOptions;
@@ -1526,6 +1527,48 @@ namespace Giny.World.Managers.Entities.Characters
                 this.Client.Send(new CharacterExperienceGainMessage(value, 0, 0, 0));
             }
         }
+        public short? LastUsedItemGid
+        {
+            get;
+            set;
+        }
+        public int LastCraftedGid
+        {
+            get;
+            set;
+        }
+        public int LastCraftedCount
+        {
+            get;
+            set;
+        }
+        private Dictionary<int, int> m_itemUseCounters = new Dictionary<int, int>();
+        private Dictionary<int, int> m_edibleUseCounters = new Dictionary<int, int>();
+        public int GetItemUseCount(int gid)
+        {
+            return m_itemUseCounters.TryGetValue(gid, out int count) ? count : 0;
+        }
+        public int GetEdibleUseCount(int gid)
+        {
+            return m_edibleUseCounters.TryGetValue(gid, out int count) ? count : 0;
+        }
+        private void IncrementCounters(Dictionary<int, int> counters, int gid)
+        {
+            counters.TryGetValue(gid, out int count);
+            counters[gid] = count + 1;
+        }
+        private static bool IsEdible(CharacterItemRecord item)
+        {
+            switch (item.Record.TypeEnum)
+            {
+                case ItemTypeEnum.BOOST_FOOD:
+                case ItemTypeEnum.EDIBLE_FISH:
+                case ItemTypeEnum.EDIBLE_MEAT:
+                    return true;
+                default:
+                    return false;
+            }
+        }
         public void UseItem(int uid, bool send)
         {
             var item = this.Inventory.GetItem(uid);
@@ -1533,7 +1576,20 @@ namespace Giny.World.Managers.Entities.Characters
             if (item != null)
             {
                 if (ItemsManager.Instance.UseItem(Client.Character, item))
+                {
                     this.Inventory.RemoveItem(item.UId, 1);
+                    this.LastUsedItemGid = (short)item.GId;
+                    IncrementCounters(m_itemUseCounters, 0);
+                    IncrementCounters(m_itemUseCounters, item.GId);
+                    if (IsEdible(item))
+                    {
+                        IncrementCounters(m_edibleUseCounters, 0);
+                        IncrementCounters(m_edibleUseCounters, item.GId);
+                    }
+                    AchievementManager.Instance.TriggerAchievementsByCriterion<UseItemCriterion>(this);
+                    AchievementManager.Instance.TriggerAchievementsByCriterion<UseItemCountCriterion>(this);
+                    AchievementManager.Instance.TriggerAchievementsByCriterion<EatItemCountCriterion>(this);
+                }
 
                 if (send)
                 {

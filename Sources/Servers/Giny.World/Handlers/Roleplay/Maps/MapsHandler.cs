@@ -1,6 +1,8 @@
-﻿using Giny.Core.DesignPattern;
+using Giny.Core.DesignPattern;
 using Giny.Core.Network.Messages;
 using Giny.Protocol.Custom.Enums;
+using Giny.World.Managers.Achievements;
+using Giny.World.Managers.Criterions.Handlers;
 using Giny.Protocol.Enums;
 using Giny.Protocol.Messages;
 using Giny.Protocol.Types;
@@ -78,6 +80,7 @@ namespace Giny.World.Handlers.Maps
 
                 client.Character.OnEnterMap();
                 client.Character.NoMove();
+                AchievementManager.Instance.TriggerAchievementsByCriterion<VisitMapCriterion>(client.Character);
 
             }
         }
