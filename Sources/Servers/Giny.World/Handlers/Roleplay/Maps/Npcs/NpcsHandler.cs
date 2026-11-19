@@ -4,6 +4,7 @@ using Giny.Protocol.Enums;
 using Giny.Protocol.Messages;
 using Giny.World.Managers.Dialogs;
 using Giny.World.Managers.Entities.Npcs;
+using Giny.World.Managers.Entities.TaxCollectors;
 using Giny.World.Managers.Exchanges;
 using Giny.World.Network;
 using System;
@@ -33,6 +34,15 @@ namespace Giny.World.Handlers.Roleplay.Maps.Npcs
                     if (npc != null)
                     {
                         npc.InteractWith(client.Character, (NpcActionsEnum)message.npcActionId);
+                    }
+                    else
+                    {
+                        var taxCollector = client.Character.Map.Instance.GetEntity<TaxCollector>((long)message.npcId);
+
+                        if (taxCollector != null)
+                        {
+                            taxCollector.InteractWith(client.Character);
+                        }
                     }
                 }
             }

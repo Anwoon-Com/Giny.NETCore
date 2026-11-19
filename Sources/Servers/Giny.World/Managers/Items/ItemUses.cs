@@ -280,6 +280,37 @@ namespace Giny.World.Managers.Items
             character.AddExperience(effect.Value, true);
             return true;
         }
+        [ItemUsageHandler(EffectsEnum.Effect_SummonTaxcollector)]
+        public static bool SummonTaxcollector(Character character, EffectInteger effect)
+        {
+            if (!character.HasGuild)
+            {
+                character.ReplyWarning("Vous devez appartenir à une guilde pour poser un percepteur.");
+                return false;
+            }
+
+            var taxCollector = new Managers.Entities.TaxCollectors.TaxCollector(character, character.Map, character.CellId);
+
+            character.Map.Instance.AddEntity(taxCollector);
+            var info = (Giny.Protocol.Types.GameRolePlayTaxCollectorInformations)taxCollector.GetActorInformations(character);
+            character.Map.Instance.Send(new Giny.Protocol.Messages.TaxCollectorAddedMessage(character.Id,
+                new Giny.Protocol.Types.TaxCollectorInformations()
+                {
+                    uniqueId = taxCollector.Id,
+                    firstNameId = info.identification.firstNameId,
+                    lastNameId = info.identification.lastNameId,
+                    allianceIdentity = info.identification.allianceIdentity,
+                    additionalInfos = new Giny.Protocol.Types.AdditionalTaxCollectorInformation()
+                    {
+                        collectorCallerId = character.Id,
+                        collectorCallerName = character.Name,
+                    },
+                    look = info.look,
+                    state = (byte)Giny.Protocol.Enums.TaxCollectorStateEnum.STATE_COLLECTING,
+                }));
+
+            return true;
+        }
         [ItemUsageHandler(14485)]
         public static bool Mimicry(Character character, CharacterItemRecord item)
         {
