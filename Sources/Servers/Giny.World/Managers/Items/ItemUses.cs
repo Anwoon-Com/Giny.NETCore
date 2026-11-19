@@ -179,5 +179,26 @@ namespace Giny.World.Managers.Items
             }
             return false;
         }
+
+        [ItemUsageHandler(ItemTypeEnum.DRAGOTURKEY_CERTIFICATE)]
+        public static bool DragoturkeyCertificate(Character character, CharacterItemRecord item)
+        {
+            character.ReplyWarning("Les montures ne sont pas disponibles pour le moment.");
+            return false;
+        }
+
+        [ItemUsageHandler(ItemTypeEnum.SEEMYOOL_CERTIFICATE)]
+        public static bool SeemyoolCertificate(Character character, CharacterItemRecord item)
+        {
+            character.ReplyWarning("Les montures ne sont pas disponibles pour le moment.");
+            return false;
+        }
+
+        [ItemUsageHandler(ItemTypeEnum.RHINEETLE_CERTIFICATE)]
+        public static bool RhineetleCertificate(Character character, CharacterItemRecord item)
+        {
+            character.ReplyWarning("Les montures ne sont pas disponibles pour le moment.");
+            return false;
+        }
     }
 }
