@@ -15,6 +15,10 @@ namespace Giny.World.Managers.Fights.Challenges
     /// Les personnages alliés doivent achever les ennemis avec une arme.
     /// </summary>
     [Challenge(9)]
+    [Challenge(266)]
+    [Challenge(304)]
+    [Challenge(325)]
+    [Challenge(335)]
     public class Barbaric : Challenge
     {
         public Barbaric(ChallengeRecord record, FightTeam team) : base(record, team)

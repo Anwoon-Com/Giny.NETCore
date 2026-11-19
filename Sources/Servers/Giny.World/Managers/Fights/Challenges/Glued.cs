@@ -14,6 +14,21 @@ namespace Giny.World.Managers.Fights.Challenges
     /// Les combattants alliés doivent finir leur tour sur une cellule adjacente à celle d'un autre combattant allié.
     /// </summary>
     [Challenge(37)]
+    [Challenge(116)]
+    [Challenge(162)]
+    [Challenge(164)]
+    [Challenge(166)]
+    [Challenge(168)]
+    [Challenge(183)]
+    [Challenge(212)]
+    [Challenge(231)]
+    [Challenge(240)]
+    [Challenge(265)]
+    [Challenge(278)]
+    [Challenge(298)]
+    [Challenge(316)]
+    [Challenge(336)]
+    [Challenge(342)]
     public class Glued : Challenge
     {
         public Glued(ChallengeRecord record, FightTeam team) : base(record, team)

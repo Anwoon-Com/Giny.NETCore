@@ -15,6 +15,8 @@ namespace Giny.World.Managers.Fights.Challenges
     /// Lorsqu'un ennemi est attaqué par un allié, il doit être achevé avant qu'un autre ennemi ne soit attaqué.
     /// </summary>
     [Challenge(31)]
+    [Challenge(322)]
+    [Challenge(332)]
     public class Focus : Challenge
     {
         public Focus(ChallengeRecord record, FightTeam team) : base(record, team)

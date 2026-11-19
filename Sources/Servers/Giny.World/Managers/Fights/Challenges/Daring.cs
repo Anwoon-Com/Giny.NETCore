@@ -14,6 +14,23 @@ namespace Giny.World.Managers.Fights.Challenges
     /// Les combattants alliés doivent finir leur tour sur une cellule adjacente à celle d'un ennemi.
     /// </summary>
     [Challenge(36)]
+    [Challenge(137)]
+    [Challenge(143)]
+    [Challenge(173)]
+    [Challenge(178)]
+    [Challenge(186)]
+    [Challenge(187)]
+    [Challenge(189)]
+    [Challenge(215)]
+    [Challenge(229)]
+    [Challenge(241)]
+    [Challenge(248)]
+    [Challenge(286)]
+    [Challenge(301)]
+    [Challenge(309)]
+    [Challenge(329)]
+    [Challenge(333)]
+    [Challenge(346)]
     public class Daring : Challenge
     {
         public Daring(ChallengeRecord record, FightTeam team) : base(record, team)

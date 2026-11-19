@@ -62,6 +62,8 @@ namespace Giny.World.Managers.Fights.Fighters
 
         public event DamageReceivedDelegate DamageReceived;
 
+        public event Action<SpellCastHandler> ActionPerformed;
+
         /*  --  */
 
         public int Id
@@ -1102,6 +1104,7 @@ namespace Giny.World.Managers.Fights.Fighters
 
         protected virtual void OnSpellCasted(SpellCastHandler handler)
         {
+            ActionPerformed?.Invoke(handler);
 
 
             foreach (var summon in GetSummons())
