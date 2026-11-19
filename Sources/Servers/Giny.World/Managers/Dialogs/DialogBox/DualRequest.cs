@@ -27,9 +27,9 @@ namespace Giny.World.Managers.Dialogs.DialogBox
 
             FightDual fight = FightManager.Instance.CreateFightDual(Source, Source.GetCell());
 
-            fight.RedTeam.AddFighter(Target.CreateFighter(fight.RedTeam));
+            fight.RedTeam.AddFighter(Source.CreateFighter(fight.RedTeam));
 
-            fight.BlueTeam.AddFighter(Source.CreateFighter(fight.BlueTeam));
+            fight.BlueTeam.AddFighter(Target.CreateFighter(fight.BlueTeam));
 
             fight.StartPlacement();
         }
