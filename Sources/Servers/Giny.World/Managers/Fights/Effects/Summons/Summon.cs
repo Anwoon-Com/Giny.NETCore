@@ -39,6 +39,11 @@ namespace Giny.World.Managers.Fights.Effects.Summons
                 {
                     SummonedMonster summon = CreateSummon(record, (byte)Effect.Max, summonCell);
 
+                    if (Source is CharacterFighter)
+                    {
+                        summon.SetController((CharacterFighter)Source);
+                    }
+
                     if (Source.CanSummon() || !summon.UseSummonSlot())
                     {
                         Source.Fight.AddSummon(Source, summon);
