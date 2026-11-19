@@ -230,7 +230,7 @@ namespace Giny.World.Managers.Exchanges.Jobs
 
             double totalLoss = 0;
 
-            var effects = TargetItem.Effects.Select(x => (EffectInteger)x).Shuffle().Take(3).ToList();
+            var effects = TargetItem.Effects.OfType<EffectInteger>().Shuffle().Take(3).ToList();
 
 
             while (runeWeigth > 0)

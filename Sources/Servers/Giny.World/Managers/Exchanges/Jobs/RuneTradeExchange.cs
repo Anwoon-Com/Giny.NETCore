@@ -94,7 +94,7 @@ namespace Giny.World.Managers.Exchanges.Jobs
 
             List<ItemRecord> runeItems = new List<ItemRecord>();
 
-            foreach (EffectInteger effect in item.Effects)
+            foreach (EffectInteger effect in item.Effects.OfType<EffectInteger>())
             {
                 var runes = ItemsManager.Instance.GetRunesItem(effect.EffectEnum);
 
