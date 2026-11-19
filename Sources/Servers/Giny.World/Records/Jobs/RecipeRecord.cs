@@ -147,9 +147,9 @@ namespace Giny.World.Records.Jobs
                 var gid = ingredient.Key;
                 var quantity = ingredient.Value;
 
-                var item = collection.GetItems().Where(x => x.GId == gid).MaxBy(x => x.Quantity);
+                int totalQuantity = collection.GetItems().Where(x => x.GId == gid).Sum(x => x.Quantity);
 
-                var value = item.Quantity / ingredient.Value;
+                var value = totalQuantity / ingredient.Value;
 
                 if (value < min)
                 {
