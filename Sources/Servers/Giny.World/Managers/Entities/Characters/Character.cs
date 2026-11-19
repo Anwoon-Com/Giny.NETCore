@@ -275,6 +275,78 @@ namespace Giny.World.Managers.Entities.Characters
         }
         public bool Fighting => Fighter != null;
 
+        public const int HavenbagMapId = 162791424;
+
+        public bool InHavenbag => HavenbagThemes.IsHavenbagMap(Record.MapId);
+
+        /// <summary>
+        /// Players explicitly invited into this character's haven bag (session scope).
+        /// </summary>
+        public readonly HashSet<long> HavenBagGuests = new HashSet<long>();
+
+        /// <summary>
+        /// Invites a player into this character's haven bag (session scope).
+        /// </summary>
+        public void InviteToHavenBag(Character guest)
+        {
+            HavenBagGuests.Add(guest.Id);
+            guest.Reply("Vous avez ete invite dans le havre-sac de " + Name + ".");
+            Reply(guest.Name + " peut maintenant entrer dans votre havre-sac.");
+        }
+
+        /// <summary>
+        /// Share bitfield (HavenBagShareBitEnum) : 1 = guests allowed, 2 = guildmates allowed.
+        /// </summary>
+        public byte HavenBagShare
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Owner of the haven bag the character is currently in (0 or self = own bag).
+        /// </summary>
+        public long HavenBagOwnerId
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Theme map of this character's haven bag (updated on theme change, used by guests).
+        /// </summary>
+        public int HavenBagThemeMapId
+        {
+            get;
+            set;
+        } = HavenbagMapId;
+
+        /// <summary>
+        /// Currently selected haven bag theme and room.
+        /// </summary>
+        public byte HavenBagThemeId
+        {
+            get;
+            set;
+        } = 1;
+        public byte HavenBagRoomId
+        {
+            get;
+            set;
+        }
+
+        public MapRecord? HavenbagReturnMap
+        {
+            get;
+            set;
+        }
+
+        public short HavenbagReturnCellId
+        {
+            get;
+            set;
+        }
+
         public Inventory Inventory
         {
             get;
