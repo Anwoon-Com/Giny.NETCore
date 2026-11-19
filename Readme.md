@@ -1,6 +1,6 @@
 # Giny.NETCore
 
-Serveur Dofus 2.x (client ~2.68) écrit en C# / .NET 6, dérivé du projet Giny.
+Emulateur Dofus 2.x (client ~2.68) écrit en C# / .NET 6, dérivé du projet Giny.
 
 ## Contenu
 
