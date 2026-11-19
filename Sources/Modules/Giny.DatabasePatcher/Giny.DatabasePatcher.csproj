@@ -11,8 +11,9 @@
     <ProjectReference Include="..\..\Servers\Giny.World\Giny.World.csproj" />
   </ItemGroup>
 
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="copy &quot;$(TargetDir)\Giny.DatabasePatcher.dll&quot; &quot;$(SolutionDir)\Servers\Giny.World\bin\Debug\net6.0\Modules\Giny.DatabasePatcher.dll&quot;" />
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(SolutionDir)' != '*Undefined*' and '$(SolutionDir)' != ''">
+    <MakeDir Directories="$(SolutionDir)\Servers\Giny.World\bin\$(Configuration)\net6.0\Modules" />
+    <Copy SourceFiles="$(TargetDir)\Giny.DatabasePatcher.dll" DestinationFiles="$(SolutionDir)\Servers\Giny.World\bin\$(Configuration)\net6.0\Modules\Giny.DatabasePatcher.dll" SkipUnchangedFiles="true" />
   </Target>
 
 </Project>
