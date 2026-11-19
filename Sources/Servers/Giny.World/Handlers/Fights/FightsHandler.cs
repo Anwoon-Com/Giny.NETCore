@@ -20,6 +20,9 @@ namespace Giny.World.Handlers.Fights
         [MessageHandler]
         public static void HandleGameActionFightCastRequestMessage(GameActionFightCastOnTargetRequestMessage message, WorldClient client)
         {
+            if (client.Character.Fighter == null)
+                return;
+
             if (!client.Character.Fighting)
             {
                 return;
@@ -35,6 +38,9 @@ namespace Giny.World.Handlers.Fights
         [MessageHandler]
         public static void HandleGameActionFightCastRequestMessage(GameActionFightCastRequestMessage message, WorldClient client)
         {
+            if (client.Character.Fighter == null)
+                return;
+
             if (!client.Character.Fighting)
             {
                 return;
@@ -57,10 +63,17 @@ namespace Giny.World.Handlers.Fights
                 client.Character.Fighter.Leave(true);
 
             }
+            else if (client.Character.SpectatingFight != null)
+            {
+                client.Character.SpectatingFight.RemoveSpectator(client.Character);
+            }
         }
         [MessageHandler]
         public static void HandleGameFightPlacementPositionRequestMessage(GameFightPlacementPositionRequestMessage message, WorldClient client)
         {
+            if (client.Character.Fighter == null)
+                return;
+
             if (client.Character.Fighting && !client.Character.Fighter.Fight.Started && !client.Character.Fighter.IsReady && client.Character.Fighter.Fight.IsCellFree(client.Character.Map.GetCell(message.cellId)))
             {
                 client.Character.Fighter.ModifyPlacement((short)message.cellId);
@@ -69,6 +82,9 @@ namespace Giny.World.Handlers.Fights
         [MessageHandler]
         public static void HandleGameFightPlacementSwapPositionsRequestMessage(GameFightPlacementSwapPositionsRequestMessage message, WorldClient client)
         {
+            if (client.Character.Fighter == null)
+                return;
+
             if (client.Character.Fighting && !client.Character.Fighter.IsReady && !client.Character.Fighter.Fight.Started)
             {
                 var target = client.Character.Fighter.Fight.GetFighter<Fighter>(x => x.Id == message.requestedId);
@@ -91,8 +107,28 @@ namespace Giny.World.Handlers.Fights
             }
         }
         [MessageHandler]
+        public static void HandleGameFightSpectatePlayerRequestMessage(GameFightSpectatePlayerRequestMessage message, WorldClient client)
+        {
+            if (client.Character.Fighting || client.Character.SpectatingFight != null)
+            {
+                return;
+            }
+
+            var target = WorldServer.Instance.GetClient(x => x.Character != null && x.Character.Id == message.playerId);
+
+            if (target == null || !target.Character.Fighting || target.Character.Fighter.Fight.Map.Id != client.Character.Map.Id)
+            {
+                return;
+            }
+
+            target.Character.Fighter.Fight.AddSpectator(client.Character);
+        }
+        [MessageHandler]
         public static void HandleGameFightReady(GameFightReadyMessage message, WorldClient client)
         {
+            if (client.Character.Fighter == null)
+                return;
+
             if (client.Character.Fighting)
                 client.Character.Fighter.ToggleReady(message.isReady);
         }
@@ -120,6 +156,9 @@ namespace Giny.World.Handlers.Fights
         [MessageHandler]
         public static void HandleFightOptionToggle(GameFightOptionToggleMessage message, WorldClient client)
         {
+            if (client.Character.Fighter == null)
+                return;
+
             if (client.Character.Fighting)
                 client.Character.Fighter.Team.Options.ToggleOption((FightOptionsEnum)message.option);
         }
@@ -128,6 +167,9 @@ namespace Giny.World.Handlers.Fights
         [MessageHandler]
         public static void HandleGameActionAcknowledgementMessage(GameActionAcknowledgementMessage message, WorldClient client)
         {
+            if (client.Character.Fighter == null)
+                return;
+
             if (message.valid && client.Character.Fighting && client.Character.Fighter.IsFighterTurn)
             {
                 client.Character.Fighter.Fight.SequenceManager.AcknowledgeAction(client.Character.Fighter, message.actionId);
@@ -136,6 +178,9 @@ namespace Giny.World.Handlers.Fights
         [MessageHandler]
         public static void HandleGameFightTurnFinishMessage(GameFightTurnFinishMessage message, WorldClient client)
         {
+            if (client.Character.Fighter == null)
+                return;
+
             if (!client.Character.Fighting)
                 return;
 
@@ -144,6 +189,9 @@ namespace Giny.World.Handlers.Fights
         [MessageHandler]
         public static void HandleGameFightTurnReadyMessage(GameFightTurnReadyMessage message, WorldClient client)
         {
+            if (client.Character.Fighter == null)
+                return;
+
             if (!client.Character.Fighting)
                 return;
 

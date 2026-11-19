@@ -1,4 +1,5 @@
-﻿using Giny.Core;
+﻿using Giny.Core.Extensions;
+using Giny.Core;
 using Giny.Core.DesignPattern;
 using Giny.Core.Network.Messages;
 using Giny.Core.Pool;
@@ -213,10 +214,33 @@ namespace Giny.World.Managers.Fights
             private set;
         }
 
+        private readonly List<Character> m_spectators = new List<Character>();
+
         public void Send(NetworkMessage message)
         {
             BlueTeam.Send(message);
             RedTeam.Send(message);
+
+            foreach (var spectator in m_spectators.ToArray())
+            {
+                spectator.Client.Send(message);
+            }
+        }
+        public void AddSpectator(Character character)
+        {
+            m_spectators.Add(character);
+            character.SpectatingFight = this;
+            character.Client.Send(new GameFightSpectatorJoinMessage(new NamedPartyTeam[0], true, false, false, Started, GetPlacementTimeLeft(), (byte)FightType));
+            character.Client.Send(new GameFightSpectateMessage(new FightDispellableEffectExtendedInformations[0], new GameActionMark[0], 0, (StartTime.HasValue ? StartTime.Value.GetUnixTimeStamp() : 0), new GameFightEffectTriggerCount[0]));
+        }
+        public void RemoveSpectator(Character character)
+        {
+            m_spectators.Remove(character);
+
+            if (character.SpectatingFight == this)
+            {
+                character.SpectatingFight = null;
+            }
         }
         public void OnFighters<T>(Action<T> action, bool aliveOnly = true) where T : Fighter
         {
