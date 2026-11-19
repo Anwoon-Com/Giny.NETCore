@@ -1349,10 +1349,9 @@ namespace Giny.World.Managers.Fights.Fighters
             {
                 this.SwitchPosition(otherTarget, register);
 
-                switch (source.Breed)
+                if (source.IsXelorOrXelorSummon())
                 {
-                    case BreedEnum.Xelor:
-                        return new Telefrag(this, otherTarget);
+                    return new Telefrag(this, otherTarget);
                 }
 
                 return null;
@@ -1733,6 +1732,21 @@ namespace Giny.World.Managers.Fights.Fighters
             MovementHistory.OnCellChanged(oldCell);
         }
         [Annotation("teleport triggered")]
+        /// <summary>
+        /// Xelor telefrag mechanic : swaps also count as telefrags for
+        /// the Xelor's summons (Synchro), not only for the Xelor itself.
+        /// </summary>
+        public bool IsXelorOrXelorSummon()
+        {
+            if (Breed == BreedEnum.Xelor)
+            {
+                return true;
+            }
+
+            var summon = this as SummonedFighter;
+            return summon != null && summon.Summoner != null && summon.Summoner.Breed == BreedEnum.Xelor;
+        }
+
         public void SwitchPosition(Fighter target, bool register = true, bool forced = false)
         {
             if (!forced)
