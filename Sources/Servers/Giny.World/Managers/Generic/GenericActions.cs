@@ -122,6 +122,7 @@ namespace Giny.World.Managers.Generic
                 character.Teleport(int.Parse(parameter.Param1), cellId);
             else
                 character.Teleport(int.Parse(parameter.Param1));
+        }
         [GenericActionHandler(GenericActionEnum.EnterHouse)]
         public static void HandleEnterHouse(Character character, IGenericAction parameter)
         {
