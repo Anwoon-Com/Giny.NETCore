@@ -192,6 +192,32 @@ namespace Giny.World.Managers.Chat
             }
         }
 
+        [ChatCommand("paddock", ServerRoleEnum.Administrator)]
+        public static void PaddockCommand(WorldClient client, int elementId)
+        {
+            if (MapsManager.Instance.AddInteractiveSkill(client.Character.Map, elementId, GenericActionEnum.Paddock,
+                InteractiveTypeEnum.PADDOCK120, SkillTypeEnum.REF_MULTIENCLOS198))
+            {
+                client.Character.Reply("Paddock gate added on element " + elementId);
+            }
+            else
+            {
+                client.Character.ReplyWarning("Unable to add element");
+            }
+        }
+
+        [ChatCommand("enclos", ServerRoleEnum.Player)]
+        public static void StableMountCommand(WorldClient client)
+        {
+            client.Character.StableMountInPaddock();
+        }
+
+        [ChatCommand("accouplement", ServerRoleEnum.Player)]
+        public static void BreedMounts(WorldClient client, long mountIdA, long mountIdB)
+        {
+            client.Character.BreedMounts(mountIdA, mountIdB);
+        }
+
         [ChatCommand("monsters", ServerRoleEnum.Administrator)]
         public static void SpawnMonstersCommand(WorldClient source, string monsters)
         {

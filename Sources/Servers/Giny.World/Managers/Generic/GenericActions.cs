@@ -147,6 +147,11 @@ namespace Giny.World.Managers.Generic
         {
             character.LearnSpell(short.Parse(parameter.Param1), true);
         }
+        [GenericActionHandler(GenericActionEnum.Paddock)]
+        public static void HandlePaddock(Character character, IGenericAction parameter)
+        {
+            character.StableMountInPaddock();
+        }
         [GenericActionHandler(GenericActionEnum.AddKamas)]
         public static void HandleAddKamas(Character character, IGenericAction parameter)
         {

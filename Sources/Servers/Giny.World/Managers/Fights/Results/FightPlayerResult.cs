@@ -129,6 +129,12 @@ namespace Giny.World.Managers.Fights.Results
                 }
 
 
+                if (this.Character.XpRatioMount > 0 && this.Character.Mount != null)
+                {
+                    this.ExperienceData.ShowExperienceForMount = true;
+                    this.ExperienceData.ExperienceForMount += (long)(experience * this.Character.XpRatioMount / (100d - this.Character.XpRatioMount));
+                }
+
                 this.ExperienceData.ShowExperienceFightDelta = true;
                 this.ExperienceData.ShowExperience = true;
                 this.ExperienceData.ShowExperienceLevelFloor = true;
