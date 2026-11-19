@@ -10,6 +10,9 @@ using Giny.Protocol.Custom.Enums;
 using Giny.World.Records.Items;
 using Giny.World.Managers.Generic;
 using Giny.World.Records.Monsters;
+using Giny.World.Records.Npcs;
+using Giny.World.Managers.Entities.Npcs;
+using Giny.ORM;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -127,27 +130,52 @@ namespace Giny.World.Managers.Dreams
         }
 
         /// <summary>
-        /// Dream sand shop : trades N sand for the given item gid.
+        /// Dream sand merchant : a BUYSELL npc on the dreams entry map whose
+        /// currency is the Dream sand item itself (tokenId = DreamSandGid).
         /// </summary>
-        public bool BuyWithDreamSand(Character character, int gid, int price)
+        public const short ShopNpcTemplateId = 23;
+        private static readonly int[] ShopItemGids = new int[] { 70, 77, 84, 103, 112, 121 };
+
+        private void SpawnShopNpc()
         {
-            var sand = character.Inventory.GetItems().Where(x => x.GId == DreamSandGid).Sum(x => x.Quantity);
+            var entry = MapRecord.GetMap(EntryMapId);
 
-            if (sand < price)
+            if (NpcSpawnRecord.GetNpcsOnMap((int)EntryMapId).Any(x => x.TemplateId == ShopNpcTemplateId))
+                return;
+
+            var spawn = new NpcSpawnRecord()
             {
-                character.ReplyError("Pas assez de Sable des songes (" + sand + "/" + price + ").");
-                return false;
-            }
+                Id = NpcSpawnRecord.PopNextId(),
+                TemplateId = ShopNpcTemplateId,
+                Template = NpcRecord.GetNpcRecord(ShopNpcTemplateId),
+                MapId = (int)EntryMapId,
+                CellId = entry.RandomWalkableCell().Id,
+                Direction = DirectionsEnum.DIRECTION_SOUTH_EAST,
+                Actions = new List<NpcActionRecord>(),
+            };
+            spawn.AddNow();
 
-            character.Inventory.RemoveItem(DreamSandGid, price);
-            character.Inventory.AddItem(gid, 1);
-            return true;
+            var action = new NpcActionRecord()
+            {
+                Id = NpcActionRecord.PopNextId(),
+                NpcSpawnId = spawn.Id,
+                Action = NpcActionsEnum.BUYSELL,
+                Param1 = string.Join(",", ShopItemGids),
+                Param2 = DreamSandGid.ToString(),
+                Param3 = "",
+                Criteria = "",
+            };
+            action.AddNow();
+            spawn.Actions.Add(action);
+
+            entry.Instance.AddEntity(new Npc(spawn, entry));
         }
 
         [StartupInvoke("DreamsPortals", StartupInvokePriority.Last)]
         public void Initialize()
         {
             SpawnWorldPortals();
+            SpawnShopNpc();
         }
 
         public void EnterDreams(Character character)
